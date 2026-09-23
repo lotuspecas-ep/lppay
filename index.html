@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lp.Pay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FAFAFC;--sur:#FFF;--ink:#191B1D;--dim:#6B7076;--line:#E3E6EA;--soft:#F1F3F6;
+ --acc:#C41E6B;--jade:#0E8174;--blue:#2C6EF2;--amber:#D08A0E;--violet:#6D4AE0;--red:#C82B36;--green:#1E8A4C;
+ --r:14px;--sh:0 1px 2px rgba(20,20,40,.05),0 8px 24px rgba(20,20,40,.06);
+ box-sizing:border-box;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
+:root[data-theme=dark]{--bg:#0A0B0D;--sur:#141619;--ink:#ECEEF1;--dim:#969CA3;--line:#24272C;--soft:#1C1F23;--sh:0 1px 2px rgba(0,0,0,.45)}
+*{box-sizing:border-box}
+html{scroll-padding-top:100px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-size:15px;line-height:1.47;letter-spacing:-.011em;-webkit-font-smoothing:antialiased}
+h1{font-size:1.7rem;font-weight:600;letter-spacing:-.026em;margin:0}
+h2{font-size:1.05rem;font-weight:600;margin:0}h3{font-size:.95rem;font-weight:600;margin:0}
+p{margin:.4em 0}.dim{color:var(--dim)}.sm{font-size:.82rem}
+button,input,select,textarea{font:inherit;color:inherit}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--sur);border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;transition:.15s;white-space:nowrap}
+.btn:hover{border-color:var(--ink)}
+.btn.p{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.xs{padding:3px 10px;font-size:.78rem}
+.btn.dg{color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,var(--line))}
+.btn.dg.armed{background:var(--red);color:#fff;border-color:var(--red)}
+.btn.add{color:var(--jade);border-color:color-mix(in srgb,var(--jade) 40%,var(--line))}
+.btn:focus-visible,[contenteditable]:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+input,select,textarea{background:var(--sur);border:1px solid var(--line);border-radius:10px;padding:8px 11px;width:100%}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 130px}
+header{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:saturate(180%) blur(18px);border-bottom:1px solid var(--line)}
+.hbar{max-width:1180px;margin:0 auto;padding:9px 16px;display:flex;align-items:center;gap:9px}
+.lgo{display:flex;align-items:center;gap:8px;font-weight:600}
+.lgo img{height:26px;border-radius:5px}.sp{flex:1}
+nav{display:flex;gap:3px;overflow-x:auto;max-width:1180px;margin:0 auto;padding:0 12px 7px;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{background:none;border:0;padding:6px 12px;border-radius:999px;cursor:pointer;color:var(--dim);display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:.88rem}
+nav button:hover{background:var(--soft)}
+nav button[aria-current=true]{background:var(--ink);color:var(--bg)}
+nav button[aria-current=true] .ico{color:inherit}
+nav .sep{width:1px;background:var(--line);margin:4px 6px;flex:none}
+.panel{display:none;padding-top:24px;animation:f .25s}.panel.on{display:block}
+@keyframes f{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.lead{color:var(--dim);max-width:66ch;margin:6px 0 18px}
+.mod{background:var(--sur);border:1px solid var(--line);border-radius:var(--r);margin-bottom:14px;box-shadow:var(--sh);overflow:hidden}
+.modh{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--soft)}
+.modh h3{flex:1}
+.modb{padding:16px}
+.mvb{width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:var(--sur);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--dim)}
+.mvb:hover{color:var(--ink);border-color:var(--ink)}
+.mvb[disabled]{opacity:.3;cursor:default}
+.card{background:var(--sur);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--sh)}
+.g{display:grid;gap:12px}
+@media(min-width:760px){.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:.88rem}
+.kv:last-child{border:0}.kv b{font-weight:600;text-align:right}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:.73rem;padding:2px 9px;border-radius:999px;border:1px solid var(--line);color:var(--dim)}
+.badge.ok{border-color:var(--green);color:var(--green);background:color-mix(in srgb,var(--green) 8%,transparent)}
+.badge.warn{border-color:var(--amber);color:var(--amber);background:color-mix(in srgb,var(--amber) 9%,transparent)}
+.badge.stop{border-color:var(--red);color:var(--red);background:color-mix(in srgb,var(--red) 8%,transparent)}
+.ico{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--sur);box-shadow:var(--sh)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:.87rem}
+th,td{border-bottom:1px solid var(--line);padding:10px 12px;vertical-align:top;text-align:left}
+thead th{position:sticky;top:0;background:var(--sur);z-index:2;font-weight:600;font-size:.8rem}
+tbody th{position:sticky;left:0;background:var(--sur);z-index:1;min-width:200px;font-weight:500}
+tr.sect th{background:linear-gradient(90deg,color-mix(in srgb,var(--violet) 12%,var(--sur)),var(--sur));font-weight:700;font-size:.78rem;letter-spacing:.04em;color:var(--violet);text-transform:uppercase}
+td[contenteditable]:hover{background:color-mix(in srgb,var(--blue) 5%,transparent)}
+[contenteditable]{outline:none}
+.hd{cursor:grab;color:var(--dim);opacity:.35;user-select:none;padding:0 3px}
+tr:hover .hd,th:hover .hd{opacity:.9}
+tr.dov th,tr.dov td{box-shadow:inset 0 3px 0 var(--acc)}
+tr.sel th,tr.sel td,th.sel{background:color-mix(in srgb,var(--acc) 10%,var(--sur))!important}
+.pick{cursor:pointer;padding:0 7px;color:var(--dim);border-radius:6px}
+.pick:hover{background:var(--soft);color:var(--ink)}
+.bar{height:4px;border-radius:2px;background:var(--line);margin-top:5px;overflow:hidden}
+.bar i{display:block;height:100%}
+.clt{width:100%;min-width:330px;border:0}
+.clt th{background:none;position:static;font-size:.72rem;color:var(--dim);padding:3px 5px;min-width:0}
+.clt td{padding:4px 5px;border:0}
+.clt input{padding:5px 6px;font-size:.82rem;text-align:center;min-width:52px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.todo{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
+.todo:last-child{border:0}.todo.done .t{text-decoration:line-through;color:var(--dim)}
+.meta{font-size:.76rem;color:var(--dim)}
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0));z-index:35}
+.fab button{width:48px;height:48px;border-radius:24px;border:0;background:var(--ink);color:var(--bg);box-shadow:0 6px 20px rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:999px;font-size:.85rem;z-index:60;opacity:0;pointer-events:none;transition:.25s}
+.toast.on{opacity:1}
+dialog{border:0;border-radius:var(--r);padding:18px;max-width:420px;width:92%;background:var(--sur);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+#gate{position:fixed;inset:0;z-index:70;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
+.hidden{display:none!important}
+.segs{display:inline-flex;background:var(--soft);border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
+.segs button{border:0;background:none;padding:5px 12px;border-radius:8px;cursor:pointer;font-size:.83rem;color:var(--dim)}
+.segs button.on{background:var(--sur);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.09);font-weight:500}
+.ctr{display:flex;justify-content:center;gap:8px;padding:12px;flex-wrap:wrap}
+.fbar{display:flex;height:40px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.fbar div{display:flex;align-items:center;justify-content:center;font-size:.72rem;color:#fff;transition:flex-basis .45s;font-weight:500}
+.lg{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:.8rem;color:var(--dim)}
+.i{display:inline-block;width:14px;height:14px;line-height:12px;border-radius:50%;
+ border:1px solid var(--line);color:var(--dim);font-size:9px;font-weight:600;font-style:normal;cursor:help;
+ margin:0 0 0 5px;vertical-align:1px;text-align:center;background:var(--sur);position:relative;top:-1px}
+.i:hover{border-color:var(--blue);color:var(--blue);background:var(--sur)}
+#tipbox{position:fixed;z-index:200;background:var(--ink);color:var(--bg);padding:10px 13px;border-radius:10px;
+ font-size:12.5px;line-height:1.45;max-width:290px;letter-spacing:-.005em;pointer-events:none;
+ opacity:0;transition:opacity .13s;box-shadow:0 10px 30px rgba(0,0,0,.25);font-weight:400}
+#tipbox.on{opacity:1}
+.calc{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:var(--soft);
+ border-radius:10px;padding:12px 14px;margin-top:10px;overflow-x:auto;line-height:1.75}
+.calc .op{color:var(--dim)}
+.calc .res{font-weight:600}
+.calc hr{border:0;border-top:1px dashed var(--line);margin:7px 0}
+.lg i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:6px}
+body.cmt [data-anchor]{cursor:crosshair}
+body.cmt [data-anchor]:hover{outline:2px dashed var(--acc);outline-offset:2px}
+.cbadge{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;border-radius:9px;background:var(--acc);color:#fff;font-size:.68rem;font-weight:600;padding:0 5px}
+.hl{animation:hl 2s}@keyframes hl{0%,60%{background:color-mix(in srgb,var(--acc) 15%,transparent)}}
+.ci{border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--sur)}
+.ci.done{opacity:.55;border-left-color:var(--green)}
+.reply{border-left:2px solid var(--line);padding:3px 0 3px 10px;margin:6px 0 0 4px;font-size:.85rem}
+.dot{width:9px;height:9px;border-radius:2px;flex:none;display:inline-block}
+.chipb{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--sur);border-radius:999px;padding:4px 12px;font-size:.8rem;cursor:pointer;color:var(--dim);opacity:.55}
+.chipb.on{opacity:1;color:var(--ink);border-color:var(--c);background:color-mix(in srgb,var(--c) 8%,var(--sur))}
+.acq{display:flex;align-items:center;gap:7px}
+@media(max-width:600px){h1{font-size:1.35rem}.modb{padding:13px}.wrap{padding:0 12px 130px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head>
+<body>
+
+<div id="gate"><div style="max-width:320px;width:100%;text-align:center">
+ <div id="gl" style="margin-bottom:16px"></div><h2>Lp.Pay</h2>
+ <p class="dim sm" style="margin-bottom:16px">Accesso riservato</p>
+ <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+ <button class="btn p" id="pwgo" style="width:100%;justify-content:center;margin-top:10px">Entra</button>
+ <p id="pwe" class="sm hidden" style="color:var(--red)">Password errata</p></div></div>
+
+<header><div class="hbar">
+ <div class="lgo"><span id="logo"></span><span>Lp.Pay</span></div><div class="sp"></div>
+ <button class="btn xs" id="cmtbtn"><svg class="ico" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg><span id="cmtlabel">Commenta</span></button>
+ <button class="btn xs" id="themebtn" title="Chiaro / scuro"><svg class="ico" viewBox="0 0 24 24" id="thi"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.2v2.2M12 19.6v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.2 12h2.2M19.6 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg></button>
+ <button class="btn xs" id="lang">EN</button>
+</div><nav id="nav"></nav></header>
+
+<div class="wrap">
+<section class="panel on" id="p-overview"></section>
+<section class="panel" id="p-compare"></section>
+<section class="panel" id="p-revenue"></section>
+<section class="panel" id="p-devices"></section>
+<section class="panel" id="p-roadmap"></section>
+<section class="panel" id="p-decisions"></section>
+<section class="panel" id="p-comments"></section>
+<section class="panel" id="p-flow"></section>
+<section class="panel" id="p-settings"></section>
+</div>
+
+<div class="fab"><button id="fabset" title="Impostazioni"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h8M16 18h4"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="14" cy="18" r="2"/></svg></button></div>
+
+<dialog id="cdlg"><h3>Nuovo commento</h3><p class="sm dim" id="canchor" style="margin:4px 0 10px"></p>
+ <textarea id="ctext" rows="4" placeholder="Cosa non torna?"></textarea>
+ <div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn xs" id="ccancel">Annulla</button><button class="btn p xs" id="csave">Salva</button></div></dialog>
+<div class="toast" id="toast"></div>
+<div id="tipbox"></div>
+
+<script>
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s??'').replace(/[<>&]/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[m]));
+const NV='<span class="badge warn">non verificato</span>';
+let L=localStorage.getItem('lp_lang')||'it';
+const t=(i,e)=>L==='it'?i:e;
+const $=s=>document.querySelector(s);
+
+/* ================= SEED ================= */
+const SEED={pw:'LP2026',logo:null,
+layout:{overview:['stato','roadmap','rischi'],revenue:['par','chart','models'],devices:['filter','chart','list','multi'],flow:['anim','split'],decisions:['list']},
+overview:[
+ {id:uid(),k:'Nexi',v:'Due contratti firmati. Collaborazione commerciale 21/11/2025: 120 € per SmartPOS, 90 € per Mini, 20 € per SoftPOS, più management fee annuale a cluster ma solo per 3 anni per cliente. App Approval Policy 10/09/2026: l\'app Lp.Pay è sullo store, gratuita, senza revenue share.',s:'ok'},
+ {id:uid(),k:'Dojo / Paymentsense',v:'Referral integrato firmato 25/05/2026: 20% del Monthly Net Profit, 4% via rivenditori. Nessuna % di listino italiana pubblica.',s:'ok'},
+ {id:uid(),k:'Fabrick / Banca Sella',v:'80 € per POS attivato, zero revenue sul transato. Set contrattuale ISV in finalizzazione secondo scambio email.',s:'warn'},
+ {id:uid(),k:'Adyen',v:'Nessun contatto avviato. Programma partner aperto ai POS integrator, Terminal API documentata, ma nessuna condizione economica pubblica e un posizionamento dichiaratamente enterprise: prima domanda da fare è se rientriamo nei loro criteri.',s:''},
+ {id:uid(),k:'La domanda da risolvere',v:'Premio secco (Sella) paga subito e smette. Quota sul margine (Dojo) paga poco all\'inizio e cresce col parco. Nexi sta in mezzo. Dipende da quanti POS installiamo nei primi 18 mesi.',s:''},
+ {id:uid(),k:'Cosa manca per decidere',v:'MDR medio italiano di Dojo, conferma scritta sul white label Nexi, soglia di passaggio da bundle a % fee, contratto Fabrick.',s:'stop'}],
+risks:[
+ {id:uid(),t:'La management fee Nexi dura solo 3 anni per cliente',x:'Allegato A: la fee annuale è riconosciuta per un massimo di 3 anni solari dall\'attivazione. Un cliente installato nel 2026 smette di pagarci nel 2029, anche se resta attivo. Il modello ricorrente ha una scadenza incorporata che nessuno ha ancora messo a piano.',l:'alto'},
+ {id:uid(),t:'Senza voucher inserito, Nexi non ci riconosce nulla',x:'Allegato A §3.1: il mancato o errato inserimento del voucher da parte del cliente impedisce a Nexi di rendicontare, in nessun caso. Tutta la nostra marginalità Nexi dipende da un codice che deve digitare l\'esercente.',l:'alto'},
+ {id:uid(),t:'Non possiamo vendere il POS, solo segnalarlo',x:'Art. 5.2: è vietato promuovere o collocare servizi di pagamento, attività riservata ex D.Lgs. 385/1993. Possiamo solo informare dell\'esistenza del voucher. La forza commerciale va istruita su questo confine o esponiamo il gruppo.',l:'alto'},
+ {id:uid(),t:'Sullo store Nexi non incassiamo nulla',x:'App Approval Policy, Annex: l\'app Lp.Pay è gratuita per l\'esercente, 0 €/mese, nessun in-app purchase. Le licenze le fatturiamo sulla nostra piattaforma. Lo store è un canale di distribuzione, non di ricavo.',l:'medio'},
+ {id:uid(),t:'Dojo può ridurre la nostra quota da solo',x:'Art. 2.1: revisione unilaterale della Compensation Share con 30 giorni di preavviso, e se la modifica non è "materiale" a loro giudizio non abbiamo diritto di recesso.',l:'alto'},
+ {id:uid(),t:'Dojo può risolvere se cambia il nostro assetto',x:'Art. 3.3.1: variazione di proprietà o management di Lotus Pecas = risoluzione immediata. Art. 3.3.3: zero nuovi merchant in un trimestre, stesso esito.',l:'alto'},
+ {id:uid(),t:'Con Sella non vediamo il nostro parco',x:'Nessun profilo super user: il transato dei nostri clienti è accessibile solo via API. Problema di controllo commerciale, non tecnico.',l:'medio'},
+ {id:uid(),t:'Il modello Sella non ha coda',x:'80 € per POS e nulla di ricorrente: a installazioni ferme il ricavo va a zero, mentre Nexi e Dojo continuano.',l:'medio'},
+ {id:uid(),t:'White label Nexi non confermato',x:'La pubblicazione dell\'app sullo store è certa, il branding completo dell\'esperienza POS no. Da mettere per iscritto prima di comunicarlo alla rete.',l:'medio'}],
+compare:{cols:[{id:'nexi',name:'Nexi',color:'#C41E6B'},{id:'dojo',name:'Dojo / Paymentsense',color:'#0E8174'},{id:'sella',name:'Fabrick / Banca Sella',color:'#2C6EF2'},{id:'adyen',name:'Adyen',color:'#6D4AE0'}],
+ rows:[{id:'s1',sect:1,label:'Profilo'},{id:'r1',label:'Tipo'},{id:'r2',label:'Paese di licenza'},{id:'r3',label:'Vigilanza'},{id:'r4',label:'Presenza in Italia'},
+  {id:'s2',sect:1,label:'Rapporto con Lp.Pay'},{id:'r5',label:'Accordo'},{id:'r6',label:'Come guadagna Lp.Pay'},{id:'r7',label:'Evoluzione prevista'},{id:'r8',label:'Sconti per clienti grandi'},{id:'r9',label:'Durata e uscita'},{id:'r10',label:'Condizioni ISV / store'},
+  {id:'s3',sect:1,label:'Dodici campi operativi'},{id:'f1',label:'Tipologie POS'},{id:'f2',label:'SoftPOS'},{id:'f3',label:'Terminali Android'},{id:'f4',label:'Commissioni'},
+  {id:'f5',label:'Costi mensili'},{id:'f6',label:'Noleggio'},{id:'f7',label:'Programma partner'},{id:'f8',label:'White label'},{id:'f9',label:'API e integrazione'},
+  {id:'f10',label:'Condizioni contrattuali'},{id:'f11',label:'Tempi di accredito'},{id:'f12',label:'SLA e assistenza'},
+  {id:'s4',sect:1,label:'Sette voti'},{id:'v1',label:'Solidità tecnica',sc:1},{id:'v2',label:'Commissioni competitive',sc:1},{id:'v3',label:'Rapidità di attivazione',sc:1},
+  {id:'v4',label:'Qualità delle API',sc:1},{id:'v5',label:'Collaborazione a lungo termine',sc:1},{id:'v6',label:'Scalabilità EU',sc:1},{id:'v7',label:'Scalabilità mondiale',sc:1},
+  {id:'s5',sect:1,label:'Sei offerte'},{id:'g1',label:'POS tradizionali'},{id:'g2',label:'POS a noleggio'},{id:'g3',label:'SoftPOS'},{id:'g4',label:'Pagamenti online'},{id:'g5',label:'Payment link'},{id:'g6',label:'QR code'}],
+ cells:{
+ 'nexi|r1':'Acquirer e issuer, gruppo Nexi','nexi|r2':'Italia','nexi|r3':'Banca d\'Italia — Albo IMEL art. 114-quater, n. 32875.7','nexi|r4':'Operatore domestico principale',
+ 'nexi|r5':'Due contratti distinti. <b>Accordo di Collaborazione Commerciale</b> firmato 21/11/2025, 3 anni con rinnovo tacito annuale, recesso di una delle parti con 60 giorni di preavviso. <b>App Approval Policy</b> firmata 10/09/2026, efficace dal 01/01/2027 per 12 mesi, rinnovo automatico, disdetta con 90 giorni.','nexi|r6':'Accordo di Collaborazione Commerciale firmato 21/11/2025, Allegato A. Una tantum attivazione: SmartPOS 120 €, SmartPOS Mini con stampante 90 €, SoftPOS 20 €, tutti netti IVA. Management fee annuale per cluster di transazioni per dispositivo: XS 20 · S 60 · M 120 · L 240 · XL 450 €. Pagata in un\'unica soluzione entro il 15.02 dell\'anno successivo, <b>per un massimo di 3 anni solari dall\'attivazione</b>. Contano solo i POS con almeno una transazione nel periodo. Licenza OnSet 395 €/anno/cliente e manutenzione 95 o 195 € sono nostro listino, non Nexi.',
+ 'nexi|r7':'Il passaggio da bundle a % fee sul transato è un\'ipotesi della direzione: <b>non compare in nessuno dei contratti firmati</b>. Soglia e percentuale tutte da negoziare. Attenzione al limite dei 3 anni solari sulla management fee: al quarto anno un cliente attivato oggi vale zero. '+NV,'nexi|r8':'Nessuno sconto previsto dall\'Allegato A: i corrispettivi sono fissi per cluster. Un ribasso andrebbe negoziato come modifica scritta ex art. 11.1. '+NV,
+ 'nexi|r9':'Collaborazione commerciale: 3 anni dal 21/11/2025, rinnovo tacito annuale, recesso libero con 60 giorni da entrambe le parti. App Approval Policy: 12 mesi dal 01/01/2027, disdetta con 90 giorni. Alla cessazione Nexi paga solo i corrispettivi maturati, nulla per i periodi successivi.',
+ 'nexi|r10':'L\'app Lp.Pay è gratuita per l\'esercente, 0 €/mese, nessun in-app purchase: Nexi non prende nulla sulle nostre sottoscrizioni e noi non incassiamo nulla dallo store. Le fee le incassiamo sulla Lotus Pecas Platform, fuori dal SmartPOS. L\'app non deve competere con Nexi o con app preinstallate, vietati banner pubblicitari e monetizzazione del secondo schermo, vietato guidare traffico referral. Assistenza in italiano o inglese in orario lavorativo, obbligatoria: un SLA scadente è motivo di rimozione.',
+ 'dojo|r9':'3 anni dal 25/05/2026. Paymentsense può risolvere con 90 giorni, o subito se cambia proprietà/management o se in un trimestre non portiamo nuovi merchant. Coda compensi 12 mesi.',
+ 'dojo|r10':'Non applicabile: nessuno store, integrazione diretta previa QA.',
+ 'sella|r9':'Set contrattuale non ancora ricevuto. '+NV,'sella|r10':'Non applicabile. '+NV,
+ 'adyen|r9':'non verificato','adyen|r10':'Marketplace partner presente ma condizioni non pubbliche. '+NV,
+ 'nexi|f1':'SmartPOS doppio schermo, SmartPOS Mini con stampante, Mobile POS bluetooth, SoftPOS',
+ 'nexi|f2':'Sì — 10 € una tantum, canone zero. PagoBANCOMAT solo Android, JCB/UPI esclusi','nexi|f3':'SmartPOS Android con store proprietario',
+ 'nexi|f4':'Listino landing LP, 22/09/2026 — Italia+: Visa/MC consumer 0,89% (+0,65% extra EEA), commercial 1,69%, PagoBANCOMAT 0,69%, JCB/UPI 2,49%, Amex 0% fino a 3.000 €. Welcome Special 1,49% unica. CNP +0,95%. Sotto 30 €: −0,05%.',
+ 'nexi|f5':'SmartPOS 12 €/mese + 49 € installazione · Mini 10 €/mese + 49 € · SoftPOS e Mobile POS canone zero · Protection Plus PCI 2,50 € + 7,50 € una tantum',
+ 'nexi|f6':'Canone mensile con contratto acquiring Nexi','nexi|f7':'Rivenditori + pubblicazione ISV su store SmartPOS',
+ 'nexi|f8':'<b>Risposta trovata nei documenti: no.</b> App Approval Policy §10: i Developer DEVONO riferirsi al dispositivo come "Nexi SmartPOS". L\'app Lp.Pay è pubblicata col nostro marchio sullo store, ma il terminale resta Nexi. Nessun white label del device.',
+ 'nexi|f9':'SDK Android SmartPOS + catalogue API + content provider. Ogni apk passa dal Developer Portal e dalla review Nexi, anche gli aggiornamenti. Vietato scaricare codice aggiuntivo dopo la certificazione, vietato root, vietata licenza o chiave all\'avvio. Demo e beta non distribuibili sullo store. Conto visione test firmato 03/12/2025, 11 mesi.',
+ 'nexi|f10':'Il contratto acquiring si firma direttamente tra Nexi e l\'esercente: <b>noi non possiamo promuovere né collocare servizi di pagamento</b> (art. 5.2, attività riservata ex D.Lgs. 385/1993). Il nostro unico strumento è il <b>voucher</b>: se il cliente non lo inserisce, Nexi non ci riconosce nulla (Allegato A §3.1). Rendicontazione semestrale. Se l\'esercente recede dall\'acquiring, i nostri compensi si fermano subito. Foro di Milano. Materiale in conto visione da restituire, penale fino a 500 €/terminale.',
+ 'nexi|f11':'Giorno lavorativo successivo, con conto italiano','nexi|f12':'Telefono 24/7 dall\'Italia, 7 giorni su 7',
+ 'nexi|v1':'8','nexi|v2':'7','nexi|v3':'7','nexi|v4':'7','nexi|v5':'8','nexi|v6':'8','nexi|v7':'5',
+ 'nexi|g1':'Sì','nexi|g2':'Sì, canone mensile','nexi|g3':'Sì','nexi|g4':'Sì (XPay, fuori landing)','nexi|g5':'Sì, Pay-by-Link incluso, 0,30 €/transazione','nexi|g6':'non verificato',
+ 'dojo|r1':'Acquirer, brand di Paymentsense','dojo|r2':'Irlanda — Paymentsense Ireland Ltd, reg. 542166','dojo|r3':'Central Bank of Ireland '+NV,'dojo|r4':'Country manager Italia, oltre 150 collaboratori dichiarati',
+ 'dojo|r5':'Integrated Referral Partner Agreement, 25/05/2026, 3 anni','dojo|r6':'20% del Monthly Net Profit sui merchant segnalati, 4% su quelli dei rivenditori. Mai entrambe sullo stesso merchant.',
+ 'dojo|r7':'Paymentsense può rivedere unilateralmente quota e costi con 30 giorni di preavviso (art. 2.1).','dojo|r8':'Nessun sovrapprezzo legato alla scelta di Dojo (art. 1.7.7), pricing merchant approvato da Paymentsense (art. 1.10).',
+ 'dojo|f1':'Dojo Go portatile, POS fisso da banco, pocket '+NV,'dojo|f2':'non verificato','dojo|f3':'non verificato',
+ 'dojo|f4':'Listino italiano non pubblicato. Nessuna percentuale da fonte ufficiale. '+NV,'dojo|f5':'non verificato','dojo|f6':'non verificato',
+ 'dojo|f7':'Referral, reseller e ISV/software house','dojo|f8':'Escluso: vietato sublicenziare o modificare il software Paymentsense (art. 1.8)',
+ 'dojo|f9':'API per ISV e integrazione ECR, oltre 50 gestionali italiani integrati. Integrazione valida solo dopo QA e conferma scritta (art. 1.7.4).',
+ 'dojo|f10':'Legge e foro irlandesi. Nessuna esclusiva (art. 1.5). Risoluzione con 90 gg, immediata se zero nuovi merchant in un trimestre o se cambia proprietà/management (art. 3.3). Coda compensi 12 mesi. Non-sollecitazione 18 mesi. Responsabilità max 10.000 €.',
+ 'dojo|f11':'Giorno successivo (fonte Dojo)','dojo|f12':'Assistenza in italiano 7/7, uptime dichiarato 99,99%',
+ 'dojo|v1':'8','dojo|v2':'5','dojo|v3':'7','dojo|v4':'7','dojo|v5':'5','dojo|v6':'7','dojo|v7':'5',
+ 'dojo|g1':'Sì','dojo|g2':'non verificato','dojo|g3':'non verificato','dojo|g4':'Sì '+NV,'dojo|g5':'non verificato','dojo|g6':'non verificato',
+ 'sella|r1':'Fabrick abilitatore tecnologico, acquiring Banca Sella, terminali Axerve','sella|r2':'Italia','sella|r3':'Banca d\'Italia','sella|r4':'Sì, gruppo bancario italiano',
+ 'sella|r5':'Programma partner ISV, set contrattuale in finalizzazione (email 2026). '+NV,'sella|r6':'80 € per POS attivato. Nessuna revenue share sul transato.',
+ 'sella|r7':'Modello rivedibile negli anni al crescere della partnership, dichiarato via email e non contrattualizzato. '+NV,
+ 'sella|r8':'Condizioni standard per i clienti: nessun margine di manovra dichiarato.',
+ 'sella|f1':'Gamma Axerve, a noleggio o in vendita','sella|f2':'non verificato','sella|f3':'non verificato',
+ 'sella|f4':'Non comunicate: acquiring Banca Sella a condizioni standard. '+NV,'sella|f5':'non verificato','sella|f6':'Sì, noleggio o acquisto (Axerve)',
+ 'sella|f7':'Sì. ISV senza componente eCommerce ammesso, confermato via email.','sella|f8':'non verificato',
+ 'sella|f9':'Canale 17 standard per il collegamento casse, oppure API key per collegamento remoto ai POS',
+ 'sella|f10':'Nessun volume minimo. KYC, underwriting e titolarità del merchant in capo a Banca Sella; supporto tecnologico e logistico a Fabrick.',
+ 'sella|f11':'non verificato','sella|f12':'Primo livello e logistica Fabrick, acquiring e dispute Banca Sella. Dashboard per il merchant; nessun profilo super user, transato visibile solo via API.',
+ 'sella|v1':'7','sella|v2':'4','sella|v3':'6','sella|v4':'6','sella|v5':'6','sella|v6':'5','sella|v7':'3',
+ 'sella|g1':'Sì','sella|g2':'Sì','sella|g3':'non verificato','sella|g4':'Sì (Axerve, fuori perimetro)','sella|g5':'non verificato','sella|g6':'non verificato',
+ 'adyen|r1':'Acquirer, processor e issuer su piattaforma unica','adyen|r2':'Paesi Bassi — Adyen N.V., licenza bancaria olandese',
+ 'adyen|r3':'De Nederlandsche Bank; filiale italiana a Milano '+NV,'adyen|r4':'Sì, ufficio a Milano. Focus dichiarato su enterprise e piattaforme',
+ 'adyen|r5':'Nessun contatto avviato. Programma partner aperto a POS integrator e software house tramite modulo partner.','adyen|r6':'Da definire. Il programma parla di premi finanziari, referral e supporto marketing, senza cifre pubbliche. '+NV,
+ 'adyen|r7':'Benefici crescenti al consolidarsi della partnership, secondo la pagina del programma. Nessuna soglia pubblicata. '+NV,
+ 'adyen|r8':'Modello interchange++ trasparente sul lato merchant; margine negoziabile a volume. '+NV,
+ 'adyen|f1':'Gamma propria di terminali certificati PCI PTS 6, per retail, hospitality, eventi, delivery','adyen|f2':'non verificato','adyen|f3':'Terminali Android proprietari '+NV,
+ 'adyen|f4':'Nessun listino italiano pubblico. Modello tipico interchange++ con markup negoziato. '+NV,'adyen|f5':'non verificato','adyen|f6':'non verificato',
+ 'adyen|f7':'Programma partner con portale dedicato, partner manager, badge di qualità, accesso anticipato ai pilot. Canale esplicito per POS integrator e system integrator.',
+ 'adyen|f8':'non verificato','adyen|f9':'Terminal API in JSON, locale o cloud, senza middleware. Terminali gestiti centralmente con aggiornamenti automatici. Documentazione pubblica completa.',
+ 'adyen|f10':'non verificato. Da valutare se una software house italiana di nostra dimensione rientri nei criteri di ingaggio. '+NV,
+ 'adyen|f11':'non verificato','adyen|f12':'non verificato',
+ 'adyen|v1':'9','adyen|v2':'5','adyen|v3':'4','adyen|v4':'9','adyen|v5':'6','adyen|v6':'9','adyen|v7':'9',
+ 'adyen|g1':'Sì','adyen|g2':'non verificato','adyen|g3':'non verificato','adyen|g4':'Sì','adyen|g5':'Sì (pay by link) '+NV,'adyen|g6':'non verificato'}},
+devices:[
+ {id:uid(),n:'Nexi SmartPOS doppio schermo',a:'nexi',own:'Nexi',os:'Android, store Nexi, SDK + ECR',una:49,can:12,rev:120,note:'Conto visione test firmato 03/12/2025, 11 mesi'},
+ {id:uid(),n:'Nexi SmartPOS Mini + stampante',a:'nexi',own:'Nexi',os:'Android, Wi-Fi e 4G',una:49,can:10,rev:90,note:'Stampante integrata, buoni pasto e mance'},
+ {id:uid(),n:'Nexi Mobile POS',a:'nexi',own:'Nexi',os:'Lettore bluetooth + app Nexi POS',una:10,can:0,rev:0,note:'Canone zero. Nessun premio definito'},
+ {id:uid(),n:'Nexi SoftPOS',a:'nexi',own:'Nexi',os:'Android 8.1+ / iPhone XS iOS 17+',una:10,can:0,rev:20,note:'20 € una tantum a noi per ogni SoftPOS attivato (Allegato A). PagoBANCOMAT solo Android, JCB/UPI esclusi'},
+ {id:uid(),n:'Dojo Go',a:'dojo',own:'Dojo',os:'Proprietario, integrazione ECR',una:0,can:0,rev:0,note:'Costi non verificati. Il ricavo arriva dalla quota sul margine, non dal device'},
+ {id:uid(),n:'Axerve (gamma Sella)',a:'sella',own:'Axerve / Banca Sella',os:'Canale 17 per le casse oppure API key remota',una:0,can:0,rev:80,note:'Noleggio o vendita a condizioni standard, nessuna revenue sul transato'},
+ {id:uid(),n:'Adyen S1F2 / gamma propria',a:'adyen',own:'Adyen',os:'Terminal API JSON, locale o cloud, nessun middleware',una:0,can:0,rev:0,note:'Certificati PCI PTS 6, gestione centralizzata e aggiornamenti automatici. Costi non pubblici'},
+ {id:uid(),n:'PAX A920 Pro',a:'lp',own:'Acquistabile da Lp.Pay',os:'Android PayDroid, SDK aperto',una:0,can:0,rev:0,note:'Un acquirer per volta secondo certificazione. Serve EMV e P2PE per ciascuno'},
+ {id:uid(),n:'Newland N950',a:'lp',own:'Acquistabile da Lp.Pay',os:'Android',una:0,can:0,rev:0,note:'Stessa logica di PAX: il vincolo è la certificazione, non il device'}],
+acq:[{id:'nexi',name:'Nexi',color:'#C41E6B',model:'bundle',share:0,inst:120,lic:395,maint:95,mdr:1.49,cost:.55,
+  clusters:[{k:'XS',min:300,max:600,fee:20},{k:'S',min:601,max:1800,fee:60},{k:'M',min:1801,max:3600,fee:120},{k:'L',min:3601,max:8000,fee:240},{k:'XL',min:8001,max:15000,fee:450}]},
+ {id:'dojo',name:'Dojo',color:'#0E8174',model:'pct',share:20,inst:0,lic:0,maint:0,mdr:1.49,cost:.55,clusters:[]},
+ {id:'sella',name:'Fabrick / Sella',color:'#2C6EF2',model:'flat',share:0,inst:80,lic:0,maint:0,mdr:0,cost:0,clusters:[]},
+ {id:'adyen',name:'Adyen',color:'#6D4AE0',model:'custom',mname:'Da negoziare: fisso per cliente + per transazione',share:0,inst:0,lic:0,maint:0,mdr:1.2,cost:.55,recfix:0,pertx:0,clusters:[]}],
+roadmap:{nexi:[{id:uid(),t:'Negoziare l\'estensione della management fee oltre i 3 anni solari per cliente',s:0,w:'Edoardo',d:''},
+ {id:uid(),t:'Rendere il voucher automatico o precompilato: oggi se il cliente non lo inserisce perdiamo il corrispettivo',s:0,w:'Edoardo',d:''},
+ {id:uid(),t:'Istruire la rete commerciale sul confine dell\'art. 5.2: segnalare sì, vendere no',s:0,w:'Giacomo',d:''},
+ {id:uid(),t:'Negoziare soglia e percentuale del passaggio da bundle a % fee',s:0,w:'Edoardo',d:''},
+ {id:uid(),t:'Definire gli scaglioni di ribasso per clienti sopra X transazioni/anno',s:0,w:'',d:''},
+ {id:uid(),t:'Restituire o rinnovare il conto visione prima della scadenza',s:0,w:'Salvatore',d:''},
+ {id:uid(),t:'Chiudere l\'integrazione SDK SmartPOS in ambiente di test',s:0,w:'Tayyip',d:''}],
+ dojo:[{id:uid(),t:'Ottenere il listino acquiring italiano ufficiale',s:0,w:'Edoardo',d:''},
+ {id:uid(),t:'Chiedere la definizione di Monthly Net Profit con un esempio numerico reale',s:0,w:'',d:''},
+ {id:uid(),t:'Verificare se serve un accordo reseller separato per la rete LP',s:0,w:'Giacomo',d:''},
+ {id:uid(),t:'Valutare il rischio art. 3.3.1: cambio proprietà o management = risoluzione immediata',s:0,w:'',d:''},
+ {id:uid(),t:'Avviare il QA di integrazione con Paymentsense',s:0,w:'Tayyip',d:''}],
+ sella:[{id:uid(),t:'Ricevere e leggere il set contrattuale ISV',s:0,w:'Edoardo',d:''},
+ {id:uid(),t:'Chiedere le commissioni acquiring standard applicate ai nostri clienti',s:0,w:'Edoardo',d:''},
+ {id:uid(),t:'Valutare canale 17 contro API remota: quale costa meno',s:0,w:'Tayyip',d:''},
+ {id:uid(),t:'Chiedere se gli 80 €/POS sono rivedibili a volume e con quali soglie',s:0,w:'',d:''},
+ {id:uid(),t:'Verificare l\'impatto dell\'assenza di vista aggregata sul transato',s:0,w:'',d:''}],
+ adyen:[{id:uid(),t:'Compilare il modulo partner come POS integrator e chiedere un partner manager italiano',s:0,w:'Edoardo',d:''},
+ {id:uid(),t:'Chiedere se esiste una soglia minima di transato o di merchant per accedere al programma',s:0,w:'Edoardo',d:''},
+ {id:uid(),t:'Farsi quotare il markup su interchange++ per il nostro profilo di merchant HoReCa e retail',s:0,w:'',d:''},
+ {id:uid(),t:'Valutare Terminal API contro SDK Nexi: costo reale di integrazione per Tayyip',s:0,w:'Tayyip',d:''},
+ {id:uid(),t:'Capire se il modello di revenue per il partner è referral, rev-share o solo sconto hardware',s:0,w:'',d:''}]},
+decisions:[{id:uid(),t:'Scegliere un unico acquirer per la fase pilota',w:'Direzione',s:'standby',n:'Vincolo assegnato dalla direzione. Da verificare se regge dopo il confronto economico.'},
+ {id:uid(),t:'Firmare il contratto ISV Fabrick / Banca Sella',w:'Giacomo',s:'standby',n:'In attesa del set contrattuale.'},
+ {id:uid(),t:'Acquistare terminali PAX o Newland di proprietà',w:'Edoardo',s:'blocked',n:'Bloccato finché non conosciamo i costi di certificazione per acquirer.'},
+ {id:uid(),t:'Portare il confronto economico alla direzione',w:'Edoardo',s:'confirmed',n:'Serve prima il MDR Dojo.'}],
+comments:[]};
+const SRC=[['Landing partner Nexi NEXI4LOTUSPECAS','22/09/2026','Canoni, installazione, commissioni Italia+ e Welcome Special, Amex, Pay-by-Link, accredito, assistenza'],
+ ['Integrated Referral Partner Agreement — Paymentsense / Lotus Pecas Italia','efficacia 25/05/2026','20% e 4% Monthly Net Profit, 3 anni, legge irlandese, artt. 1.7.7, 1.10, 2.1, 3.3, 4.2, 4.5'],
+ ['Accordo di Collaborazione Commerciale Nexi / Lotus Pecas Italia + Allegato A','firmato 21/11/2025','Una tantum 120 / 90 / 20 €, management fee XS–XL, tetto 3 anni solari, voucher, art. 5.2 divieto di collocamento, recesso 60 gg, foro di Milano'],
+ ['Nexi App Approval Policy — Generic SDK','firmata 10/09/2026, efficace 01/01/2027','App gratuita 0 €/mese, nessun revenue share, divieto di competere con app Nexi, no banner, no monetizzazione secondo schermo, obbligo di chiamarlo "Nexi SmartPOS", 12 mesi con disdetta 90 gg'],
+ ['Modulo Conto Visione Nexi — SmartPOS doppio schermo','03/12/2025','11 mesi, solo test, penale fino a 500 €/terminale'],
+ ['Schema premi e listino LP (screenshot direzione)','22/09/2026','Cluster XS–XL, premi 120 e 90 €, OnSet 395 €, manutenzione 95 e 195 €'],
+ ['Dojo — sito e partner programme','22/09/2026','Referral, reseller, ISV. Oltre 50 gestionali integrati. Nessuna percentuale pubblicata.'],
+ ['Scambio email Fabrick / Banca Sella','2026','ISV senza eCommerce ammesso, canale 17 o API key, 80 €/POS, nessuna revenue sul transato, nessun volume minimo, nessun super user']];
+const PIC={card:'M2 8h20M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z M6 15h4',
+ pos:'M7 3h10a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M9 7h6 M10 17h4',
+ acq:'M3 21h18 M5 21V10l7-5 7 5v11 M10 21v-6h4v6',
+ net:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z M3 12h18 M12 3c3 4 3 14 0 18 M12 3c-3 4-3 14 0 18',
+ bank:'M3 10h18 M5 10v8M9 10v8M15 10v8M19 10v8 M2 21h20 M12 3l9 6H3z'};
+const FLOW=[{t:['Il cliente presenta la carta','The customer taps the card'],d:['Carta, telefono o orologio sul POS. Il terminale legge chip o contactless e cifra i dati con le chiavi iniettate dall\'acquirer.','Card, phone or watch on the POS. The terminal reads it and encrypts with keys injected by the acquirer.'],a:0,b:1},
+ {t:['Il POS invia all\'acquirer','The POS sends it to the acquirer'],d:['La richiesta di autorizzazione va a Nexi, Dojo o Banca Sella. Il software Lp.Pay vede la transazione ma non la processa mai.','The authorisation request goes to the acquirer. Lp.Pay software sees it but never processes it.'],a:1,b:2},
+ {t:['L\'acquirer passa al circuito','The acquirer hands it to the network'],d:['Visa, Mastercard o PagoBANCOMAT identificano la banca che ha emesso la carta e inoltrano la richiesta.','Visa, Mastercard or PagoBANCOMAT identify the issuing bank and forward it.'],a:2,b:3},
+ {t:['La banca emittente decide','The issuing bank decides'],d:['Plafond, antifrode, saldo. Autorizzato o rifiutato in poche centinaia di millisecondi.','Limits, fraud rules, balance. Approved or declined in a few hundred milliseconds.'],a:3,b:4},
+ {t:['Il denaro arriva all\'esercente','Money reaches the merchant'],d:['La risposta torna indietro e la transazione viene regolata: accredito il giorno lavorativo successivo, al netto delle commissioni.','The answer travels back and settles the next business day, net of fees.'],a:4,b:1}];
+const NODES=[['Cliente','Customer','#C41E6B',PIC.card],['POS','POS','#0E8174',PIC.pos],['Acquirer','Acquirer','#6D4AE0',PIC.acq],['Circuito','Network','#D08A0E',PIC.net],['Banca emittente','Issuer','#2C6EF2',PIC.bank]];
+
+/* ================= state ================= */
+let S;const LS='lppay_v7';
+const tip=(x)=>`<i class="i" tabindex="0" data-tip="${esc(x)}">i</i>`;
+const G={
+ mdr:'Merchant Discount Rate: la percentuale che l\'esercente paga sull\'incasso. Su 100 € con MDR 1,49% l\'esercente ne riceve 98,51.',
+ inter:'Interchange: la fetta che l\'acquirer gira alla banca che ha emesso la carta. In UE è a tetto fisso: 0,20% sul debito consumer, 0,30% sul credito consumer.',
+ scheme:'Scheme fee: quanto trattiene il circuito (Visa, Mastercard, PagoBANCOMAT) per far viaggiare la transazione.',
+ margin:'Margine acquirer: ciò che resta all\'acquirer dopo interchange e scheme fee. È la torta da cui esce la nostra quota.',
+ share:'La percentuale di quel margine che l\'acquirer gira a noi. Con Dojo è il 20% del Monthly Net Profit.',
+ bundle:'Modello a cluster: ogni cliente paga una quota annua fissa decisa dalla sua fascia di transazioni. Chi incassa di più sta in una fascia più alta.',
+ flat:'Premio secco: ci pagano una volta, all\'attivazione del POS. Poi quel cliente non genera più nulla.',
+ pctm:'Quota sul margine: guadagniamo una percentuale di quello che l\'acquirer guadagna sul transato. Cresce col volume, non con le installazioni.',
+ custom:'Modello da comporre: fisso annuo per cliente, importo per transazione e quota sul margine si sommano. Azzera ciò che non usi.',
+ inst:'Quanto ci riconoscono per ogni POS che installiamo. Una tantum: non torna l\'anno dopo.',
+ lic:'Quanto fattura Lotus Pecas al cliente per il software, ogni anno. Non c\'entra con l\'acquirer.',
+ maint:'Canone annuo di assistenza sul nostro software.',
+ clients:'Quanti esercenti hanno un nostro POS attivo e funzionante nell\'anno.',
+ tx:'Quanti pagamenti con carta passa in media un cliente in un anno. Un bar sta sui 8.000, un negozio di nicchia sotto i 1.000.',
+ ticket:'Quanto vale in media un singolo pagamento. Scontrino medio del bar 8 €, di un ristorante 45 €.',
+ newc:'Quante nuove installazioni facciamo nell\'anno. Determina solo i premi una tantum.',
+ disc:'Lo sconto che concediamo a un cliente grande per non perderlo. Riduce ciò che incassiamo su di lui.',
+ big:'Che percentuale della base clienti è "grande" e quindi ottiene quello sconto.',
+ rec:'Ricorrente: arriva ogni anno finché il cliente resta. È il numero che conta dopo il primo anno.',
+ one:'Una tantum: legato alle nuove installazioni dell\'anno. Se smettiamo di installare, sparisce.',
+ liq:'Licenze e manutenzione del nostro software: ricavo nostro, indipendente da quale acquirer scegliamo.',
+ vol:'Transato: il totale in euro che passa dai nostri POS in un anno.',
+ una:'Costo che il cliente paga una sola volta all\'attivazione (installazione o acquisto del device).',
+ can:'Quanto il cliente paga ogni mese per tenere il terminale.',
+ revd:'Quanto entra a noi per ogni installazione di quel terminale.',
+ sett:'Settlement: il momento in cui i soldi arrivano davvero sul conto dell\'esercente, di solito il giorno dopo. Diverso dall\'autorizzazione, che è istantanea.',
+ auth:'Autorizzazione: il sì o no della banca, in poche centinaia di millisecondi. Non è ancora denaro spostato.'};
+const PALETTE=['#C41E6B','#0E8174','#2C6EF2','#D08A0E','#6D4AE0','#0F9B8E','#E0562A','#1E8A4C','#8E44AD','#00796B'];
+const nextColor=()=>PALETTE.find(c=>!S.compare.cols.some(x=>x.color===c))||PALETTE[S.compare.cols.length%PALETTE.length];
+function load(){try{S=JSON.parse(localStorage.getItem(LS))}catch(e){}
+ if(!S||!S.compare)S=JSON.parse(JSON.stringify(SEED));
+ if(!S.layout)S.layout=JSON.parse(JSON.stringify(SEED.layout));
+ if(!S.risks)S.risks=JSON.parse(JSON.stringify(SEED.risks));
+ S.acq.forEach(a=>{a.recfix=a.recfix||0;a.pertx=a.pertx||0});
+ VIS=new Set(S.compare.cols.map(c=>c.id));}
+function save(q){localStorage.setItem(LS,JSON.stringify(S));if(!q)toast(t('Salvato','Saved'));push()}
+let _t;const qs=()=>{clearTimeout(_t);_t=setTimeout(()=>save(1),500)};
+function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(e._x);e._x=setTimeout(()=>e.classList.remove('on'),1600)}
+let SB={url:localStorage.getItem('sb_url')||'',key:localStorage.getItem('sb_key')||''};
+const sbOn=()=>SB.url&&SB.key;
+async function push(){if(!sbOn())return;try{await fetch(SB.url.replace(/\/$/,'')+'/rest/v1/lppay_state',{method:'POST',headers:{apikey:SB.key,Authorization:'Bearer '+SB.key,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates'},body:JSON.stringify([{id:'main',data:S}])})}catch(e){}}
+async function pull(){if(!sbOn())return toast('Supabase non configurato');
+ try{const r=await fetch(SB.url.replace(/\/$/,'')+'/rest/v1/lppay_state?id=eq.main&select=data',{headers:{apikey:SB.key,Authorization:'Bearer '+SB.key}});
+ const j=await r.json();if(j[0]?.data){S=j[0].data;load();localStorage.setItem(LS,JSON.stringify(S));all();toast('Scaricato')}else toast('Nessun dato remoto')}catch(e){toast('Errore Supabase')}}
+
+/* ============ delete = due clic, niente confirm() ============ */
+document.addEventListener('click',e=>{
+ const b=e.target.closest('.btn.dg[data-act]');if(!b){document.querySelectorAll('.btn.dg.armed').forEach(x=>{x.classList.remove('armed');x.textContent=x.dataset.lbl||'Elimina'});return}
+ e.stopPropagation();
+ if(!b.classList.contains('armed')){b.dataset.lbl=b.textContent;b.classList.add('armed');b.textContent=t('Confermi?','Confirm?');
+  setTimeout(()=>{if(b.isConnected&&b.classList.contains('armed')){b.classList.remove('armed');b.textContent=b.dataset.lbl}},4000);return}
+ const[fn,arg]=b.dataset.act.split(':');DEL[fn]&&DEL[fn](arg)},true);
+const DEL={
+ ovw:id=>{S.overview=S.overview.filter(o=>o.id!==id);save(1);ovw()},
+ risk:id=>{S.risks=S.risks.filter(o=>o.id!==id);save(1);ovw()},
+ dev:id=>{S.devices=S.devices.filter(d=>d.id!==id);save(1);devices()},
+ task:id=>{const p=$('#rdsel').value;S.roadmap[p]=S.roadmap[p].filter(x=>x.id!==id);save(1);roadmap()},
+ dec:id=>{S.decisions=S.decisions.filter(d=>d.id!==id);save(1);decisions()},
+ cmt:id=>{S.comments=S.comments.filter(c=>c.id!==id);save(1);comments();cbadges()},
+ col:a=>{const[k,c]=a.split('|');S[k].cols=S[k].cols.filter(x=>x.id!==c);
+   Object.keys(S[k].cells).forEach(x=>x.startsWith(c+'|')&&delete S[k].cells[x]);
+   S.acq=S.acq.filter(x=>x.id!==c);delete S.roadmap[c];SELC=null;save(1);all()},
+ row:a=>{const[k,r]=a.split('|'),R=S[k].rows,i=R.findIndex(x=>x.id===r);if(i<0)return;
+   const n=R[i].sect?blockLen(R,i):1;
+   R.splice(i,n).forEach(rr=>Object.keys(S[k].cells).forEach(x=>x.endsWith('|'+rr.id)&&delete S[k].cells[x]));
+   SELR=null;save(1);compare()},
+ cluster:a=>{const[id,ix]=a.split('|');S.acq.find(x=>x.id===id).clusters.splice(+ix,1);save(1);revenue()}};
+
+/* ============ moduli riordinabili ============ */
+function modWrap(panel,key,title,body,icon,color){
+ const arr=S.layout[panel],i=arr.indexOf(key);
+ return `<section class="mod" data-anchor="${esc(title)}">
+  <div class="modh"><svg class="ico" viewBox="0 0 24 24" style="color:${color||'var(--dim)'}"><path d="${icon||'M4 6h16M4 12h16M4 18h16'}"/></svg>
+   <h3>${esc(title)}</h3>
+   <button class="mvb" data-mv="${panel}|${key}|-1" ${i<=0?'disabled':''} title="su"><svg class="ico" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+   <button class="mvb" data-mv="${panel}|${key}|1" ${i>=arr.length-1?'disabled':''} title="giù"><svg class="ico" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button></div>
+  <div class="modb">${body}</div></section>`}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-mv]');if(!b)return;
+ const[p,k,d]=b.dataset.mv.split('|'),A=S.layout[p],i=A.indexOf(k),j=i+ +d;
+ if(j<0||j>=A.length)return;A.splice(j,0,A.splice(i,1)[0]);save(1);
+ ({overview:ovw,revenue:revenue,devices:devices,flow:flowPanel,decisions:decisions})[p]()});
+
+/* ================= nav ================= */
+const TABS=[['overview','Panoramica','Overview','M3 11l9-8 9 8M5 9.5V20h14V9.5','var(--acc)'],
+ ['compare','Comparatore','Comparator','M4 7h16M4 12h16M4 17h10','var(--violet)'],
+ ['revenue','Simulatore','Simulator','M4 19V9M10 19V5M16 19v-7M22 19H2','var(--jade)'],
+ ['devices','Terminali','Terminals','M7 3h10v18H7zM10 18h4','var(--blue)'],
+ ['roadmap','Roadmap','Roadmap','M4 6h16M4 12h10M4 18h7','var(--amber)'],
+ ['decisions','Decisioni','Decisions','M9 12l2 2 4-4M12 3l8 4v6c0 4-3.5 7-8 8-4.5-1-8-4-8-8V7z','var(--green)'],
+ ['comments','Commenti','Comments','M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z','var(--acc)'],
+ ['SEP'],['flow','Pagamento','Payment','M3 12h4l3 7 4-14 3 7h4','var(--violet)']];
+function nav(){
+ $('#nav').innerHTML=TABS.map(x=>x[0]==='SEP'?'<span class="sep"></span>':
+  `<button data-tab="${x[0]}"><svg class="ico" viewBox="0 0 24 24" style="color:${x[4]}"><path d="${x[3]}"/></svg>${L==='it'?x[1]:x[2]}<span id="cb-${x[0]}"></span></button>`).join('');
+ document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.tab));
+ mark(document.querySelector('.panel.on')?.id.slice(2)||'overview');cbadges()}
+const mark=x=>document.querySelectorAll('#nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===x));
+function go(tab,an){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+ $('#p-'+tab).classList.add('on');mark(tab);scrollTo({top:0});
+ if(an)setTimeout(()=>{const e=[...document.querySelectorAll('[data-anchor]')].find(x=>x.dataset.anchor===an);
+  if(e){e.scrollIntoView({block:'center',behavior:'smooth'});e.classList.add('hl');setTimeout(()=>e.classList.remove('hl'),2100)}},130)}
+
+/* ================= panoramica ================= */
+const LV={alto:['Alto','var(--red)'],medio:['Medio','var(--amber)'],basso:['Basso','var(--green)']};
+function ovw(){
+ const stato=`<div class="row" style="margin-bottom:12px"><button class="btn xs add" id="ovadd">+ Voce</button></div>
+  <div class="g g2">${S.overview.map(o=>`<div class="card" data-anchor="Panoramica · ${esc(o.k)}" style="border-left:3px solid ${o.s==='ok'?'var(--green)':o.s==='warn'?'var(--amber)':o.s==='stop'?'var(--red)':'var(--line)'}">
+   <div class="row" style="justify-content:space-between"><h3 contenteditable data-ok="${o.id}">${esc(o.k)}</h3>
+    <select data-os="${o.id}" style="width:auto;padding:3px 9px;font-size:.75rem;border-radius:999px">
+     <option value="" ${!o.s?'selected':''}>—</option><option value="ok" ${o.s==='ok'?'selected':''}>attivo</option>
+     <option value="warn" ${o.s==='warn'?'selected':''}>in corso</option><option value="stop" ${o.s==='stop'?'selected':''}>bloccante</option></select></div>
+   <p class="sm dim" contenteditable data-ov="${o.id}" style="margin-top:8px">${esc(o.v)}</p>
+   <div class="row" style="margin-top:8px"><button class="btn xs dg" data-act="ovw:${o.id}">Elimina</button></div></div>`).join('')}</div>`;
+ const open=S.compare.cols.map(c=>({n:c.name,color:c.color,o:(S.roadmap[c.id]||[]).filter(x=>!x.s).length,tot:(S.roadmap[c.id]||[]).length}));
+ const next=S.compare.cols.flatMap(c=>(S.roadmap[c.id]||[]).filter(x=>!x.s).slice(0,2).map(x=>({p:c.name,color:c.color,...x})));
+ const road=`${open.map(o=>`<div class="kv"><span class="acq"><span class="dot" style="background:${o.color||'var(--dim)'}"></span>${esc(o.n)}</span><b>${o.o} ${t('aperte','open')} / ${o.tot}</b></div>`).join('')}
+  <div style="margin-top:12px">${next.map(n=>`<div class="todo"><span class="dot" style="background:${n.color||'var(--dim)'};margin-top:7px"></span>
+   <div class="t"><div>${esc(n.t)}</div><div class="meta">${esc(n.p)}${n.w?' · '+esc(n.w):''}${n.d?' · '+n.d:''}</div></div></div>`).join('')}</div>
+  <button class="btn xs" style="margin-top:12px" data-go="roadmap">${t('Apri la roadmap','Open roadmap')}</button>`;
+ const risk=`<div class="row" style="margin-bottom:12px"><button class="btn xs add" id="rkadd">+ Rischio</button></div>
+  ${S.risks.map(r=>`<div class="card" style="margin-bottom:10px;border-left:3px solid ${LV[r.l]?.[1]||'var(--line)'}" data-anchor="Rischio · ${esc(r.t).slice(0,34)}">
+   <div class="row" style="justify-content:space-between"><h3 contenteditable data-rkt="${r.id}" style="flex:1;min-width:140px">${esc(r.t)}</h3>
+    <div class="segs">${Object.entries(LV).map(([k,v])=>`<button data-rkl="${r.id}|${k}" class="${r.l===k?'on':''}">${v[0]}</button>`).join('')}</div></div>
+   <p class="sm dim" contenteditable data-rkx="${r.id}" style="margin-top:8px">${esc(r.x)}</p>
+   <div class="row" style="margin-top:8px"><button class="btn xs dg" data-act="risk:${r.id}">Elimina</button></div></div>`).join('')}`;
+ const M={stato:['Stato dei partner',stato,'M12 3l8 4v6c0 4-3.5 7-8 8-4.5-1-8-4-8-8V7z','var(--acc)'],
+  roadmap:['Roadmap in sintesi',road,'M4 6h16M4 12h10M4 18h7','var(--amber)'],
+  rischi:['Rischi aperti',risk,'M12 9v5M12 17h.01M10.3 3.9L2.5 17.5A2 2 0 0 0 4.2 20.5h15.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z','var(--red)']};
+ $('#p-overview').innerHTML=`<h1>${t('Panoramica','Overview')}</h1>
+  <p class="lead">${t('Tre operatori, tre modi diversi di pagarci. Ogni modulo si sposta con le frecce e resta dove lo metti.','Three operators, three ways of paying us. Each module moves with the arrows and stays put.')}</p>`+
+  S.layout.overview.map(k=>modWrap('overview',k,M[k][0],M[k][1],M[k][2],M[k][3])).join('');
+ const P=$('#p-overview');
+ P.querySelector('#ovadd').onclick=()=>{S.overview.push({id:uid(),k:t('Nuova voce','New item'),v:'',s:''});save(1);ovw()};
+ P.querySelector('#rkadd').onclick=()=>{S.risks.push({id:uid(),t:t('Nuovo rischio','New risk'),x:'',l:'medio'});save(1);ovw()};
+ P.querySelectorAll('[data-ok]').forEach(x=>x.addEventListener('input',()=>{S.overview.find(o=>o.id===x.dataset.ok).k=x.textContent;qs()}));
+ P.querySelectorAll('[data-ov]').forEach(x=>x.addEventListener('input',()=>{S.overview.find(o=>o.id===x.dataset.ov).v=x.textContent;qs()}));
+ P.querySelectorAll('[data-os]').forEach(x=>x.onchange=()=>{S.overview.find(o=>o.id===x.dataset.os).s=x.value;save(1);ovw()});
+ P.querySelectorAll('[data-rkt]').forEach(x=>x.addEventListener('input',()=>{S.risks.find(o=>o.id===x.dataset.rkt).t=x.textContent;qs()}));
+ P.querySelectorAll('[data-rkx]').forEach(x=>x.addEventListener('input',()=>{S.risks.find(o=>o.id===x.dataset.rkx).x=x.textContent;qs()}));
+ P.querySelectorAll('[data-rkl]').forEach(b=>b.onclick=()=>{const[id,l]=b.dataset.rkl.split('|');S.risks.find(r=>r.id===id).l=l;save(1);ovw()});
+ P.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+}
+
+/* ================= comparatore ================= */
+let SELR=null,SELC=null,VIS=null;
+const blockLen=(R,i)=>{let j=i+1;while(j<R.length&&!R[j].sect)j++;return j-i};
+function compare(){
+ $('#p-compare').innerHTML=`<h1>${t('Comparatore','Comparator')}</h1>
+ <p class="lead">${t('Ogni operatore letto con lo stesso metro. Trascina la maniglia di una macrocategoria per spostare il blocco intero; quella di una riga per muoverla dentro la sua sezione. Clicca il pallino per selezionare ed eliminare.','Drag a section handle to move the whole block, a row handle to move it inside its section. Click the dot to select and delete.')}</p>
+ <div class="row" style="margin-bottom:10px" id="vischips"></div>
+ <div class="row" style="margin-bottom:12px">
+  <button class="btn xs add" id="acol">+ Operatore</button>
+  <button class="btn xs add" id="arow">+ Voce</button>
+  <button class="btn xs add" id="asect">+ Macrocategoria</button></div>
+ <div class="tw" data-anchor="Comparatore"><table id="tc"></table></div>
+ <p class="sm dim" style="margin-top:10px">${t('I dodici campi operativi sono lo standard di confronto di Lp.Pay: le sole variabili che muovono davvero costo, rischio e tempi di un\'integrazione. Le percentuali pubbliche restano listino self-service.','The twelve operating fields are Lp.Pay\'s comparison standard. Public rates stay self-service list prices.')}</p>`;
+ $('#acol').onclick=()=>{const id=uid(),c=nextColor(),nm=t('Nuovo operatore','New operator');
+  S.compare.cols.push({id,name:nm,color:c});S.roadmap[id]=[];VIS.add(id);
+  S.acq.push({id,name:nm,color:c,model:'pct',share:0,inst:0,lic:0,maint:0,mdr:1.49,cost:.55,recfix:0,pertx:0,clusters:[]});save(1);all();toast(t('Operatore aggiunto','Added'))};
+ $('#arow').onclick=()=>{S.compare.rows.push({id:uid(),label:t('Nuova voce','New field')});save(1);compare();toast(t('Voce aggiunta','Added'))};
+ $('#asect').onclick=()=>{S.compare.rows.push({id:uid(),label:t('Nuova macrocategoria','New section'),sect:1});save(1);compare();toast(t('Macrocategoria aggiunta','Added'))};
+ chips();grid();
+}
+function chips(){
+ const box=$('#vischips');if(!box)return;const C=S.compare.cols;
+ box.innerHTML=`<span class="sm dim" style="margin-right:4px">${t('Mostra','Show')}</span>`+
+  C.map(c=>`<button class="chipb ${VIS.has(c.id)?'on':''}" data-vis="${c.id}" style="--c:${c.color}">
+   <span class="dot" style="background:${c.color}"></span>${esc(c.name)}</button>`).join('')+
+  `<button class="btn xs" data-vis="__all">${t('Tutti','All')}</button>`;
+ box.querySelectorAll('[data-vis]').forEach(b=>b.onclick=()=>{
+  const id=b.dataset.vis;
+  if(id==='__all'){C.forEach(c=>VIS.add(c.id))}
+  else if(VIS.has(id)){if(VIS.size>1)VIS.delete(id)}else VIS.add(id);
+  chips();grid()})}
+function grid(){
+ const D={...S.compare,cols:S.compare.cols.filter(c=>VIS.has(c.id))},el=$('#tc');
+ let h='<thead><tr><th style="min-width:200px"></th>'+D.cols.map(c=>{const s=SELC===c.id;
+  return `<th class="${s?'sel':''}" style="border-top:3px solid ${c.color||'var(--line)'}">
+   <span class="hd" draggable="true" data-dcol="${c.id}">⠿</span>
+   <span contenteditable data-col="${c.id}" style="color:${c.color};font-weight:600">${esc(c.name)}</span>
+   <span class="pick" data-selc="${c.id}">●</span>
+   ${s?`<button class="btn xs dg" data-act="col:compare|${c.id}" style="margin-left:6px">Elimina colonna</button>`:''}</th>`}).join('')+'</tr></thead><tbody>';
+ D.rows.forEach((r,i)=>{const s=SELR===r.id;
+  if(r.sect){h+=`<tr class="sect${s?' sel':''}" draggable="true" data-rid="${r.id}" data-sect="1">
+   <th colspan="${D.cols.length+1}"><span class="hd">⠿</span> <span contenteditable data-row="${r.id}">${esc(r.label)}</span>
+   <span class="pick" data-selr="${r.id}">●</span>
+   ${s?`<button class="btn xs dg" data-act="row:compare|${r.id}" style="margin-left:6px">Elimina sezione e righe</button>`:''}</th></tr>`;return}
+  h+=`<tr draggable="true" data-rid="${r.id}" class="${s?'sel':''}"><th><span class="hd">⠿</span> <span contenteditable data-row="${r.id}">${esc(r.label)}</span>
+   <span class="pick" data-selr="${r.id}">●</span>${s?`<button class="btn xs dg" data-act="row:compare|${r.id}" style="margin-left:6px">Elimina</button>`:''}</th>`+
+   D.cols.map(c=>`<td contenteditable data-cell="${c.id}|${r.id}" data-anchor="${esc(c.name)} · ${esc(r.label)}" style="color:color-mix(in srgb,${c.color||'var(--ink)'} 42%,var(--ink));box-shadow:inset 3px 0 0 color-mix(in srgb,${c.color||'var(--line)'} 22%,transparent)">${D.cells[c.id+'|'+r.id]||''}</td>`).join('')+'</tr>'});
+ el.innerHTML=h+'</tbody>';
+ el.querySelectorAll('[data-cell]').forEach(td=>{const[cid,rid]=td.dataset.cell.split('|');const r=D.rows.find(x=>x.id===rid);
+  if(r?.sc&&!td.querySelector('.bar')){const n=Math.max(0,Math.min(10,parseFloat(td.textContent)||0));
+   const b=document.createElement('div');b.className='bar';b.contentEditable='false';
+   b.innerHTML=`<i style="width:${n*10}%;background:${D.cols.find(c=>c.id===cid)?.color||'var(--jade)'}"></i>`;td.appendChild(b)}});
+ el.querySelectorAll('[data-selr]').forEach(x=>x.onclick=ev=>{ev.stopPropagation();SELR=SELR===x.dataset.selr?null:x.dataset.selr;SELC=null;grid()});
+ el.querySelectorAll('[data-selc]').forEach(x=>x.onclick=ev=>{ev.stopPropagation();SELC=SELC===x.dataset.selc?null:x.dataset.selc;SELR=null;grid()});
+ el.querySelectorAll('[data-cell]').forEach(x=>x.addEventListener('input',()=>{const cl=x.cloneNode(true);cl.querySelectorAll('.bar').forEach(n=>n.remove());
+  D.cells[x.dataset.cell]=cl.innerHTML.trim();qs()}));
+ el.querySelectorAll('[data-row]').forEach(x=>x.addEventListener('input',()=>{const r=D.rows.find(y=>y.id===x.dataset.row);if(r)r.label=x.textContent;qs()}));
+ el.querySelectorAll('[data-col]').forEach(x=>x.addEventListener('input',()=>{const c=D.cols.find(y=>y.id===x.dataset.col);
+  if(c){c.name=x.textContent;const a=S.acq.find(y=>y.id===c.id);if(a)a.name=c.name}qs()}));
+ gridDrag(el);
+}
+function gridDrag(el){
+ const R=()=>S.compare.rows;let src=null;
+ el.querySelectorAll('tr[draggable]').forEach(tr=>{
+  tr.addEventListener('dragstart',e=>{src=tr;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text','x')});
+  tr.addEventListener('dragover',e=>{e.preventDefault();
+   const ok=src&&(src.dataset.sect?tr.dataset.sect==='1':true);tr.classList.toggle('dov',!!ok)});
+  tr.addEventListener('dragleave',()=>tr.classList.remove('dov'));
+  tr.addEventListener('drop',e=>{e.preventDefault();tr.classList.remove('dov');if(!src||src===tr)return;
+   const rows=R(),a=rows.findIndex(x=>x.id===src.dataset.rid);
+   if(src.dataset.sect){
+    /* un blocco si muove solo davanti a un altro blocco */
+    if(tr.dataset.sect!=='1'){toast(t('Una macrocategoria si sposta solo su un\'altra macrocategoria','Sections drop onto sections only'));return}
+    const len=blockLen(rows,a),cut=rows.splice(a,len);
+    const tgt=rows.findIndex(x=>x.id===tr.dataset.rid);
+    rows.splice(tgt<0?rows.length:tgt,0,...cut);
+   }else{
+    if(tr.dataset.sect==='1'){toast(t('Rilascia la riga su un\'altra riga, non sull\'intestazione','Drop rows onto rows'));return}
+    const[m]=rows.splice(a,1);rows.splice(rows.findIndex(x=>x.id===tr.dataset.rid),0,m)}
+   save(1);grid()})});
+ el.querySelectorAll('[data-dcol]').forEach(hd=>{const th=hd.closest('th');
+  hd.addEventListener('dragstart',e=>e.dataTransfer.setData('col',hd.dataset.dcol));
+  th.addEventListener('dragover',e=>e.preventDefault());
+  th.addEventListener('drop',e=>{e.preventDefault();const s=e.dataTransfer.getData('col');if(!s)return;
+   const C=S.compare.cols,a=C.findIndex(x=>x.id===s),b=C.findIndex(x=>x.id===hd.dataset.dcol);
+   if(a<0||b<0||a===b)return;C.splice(b,0,C.splice(a,1)[0]);save(1);grid()})});
+}
+
+/* ================= simulatore ================= */
+const eur=n=>new Intl.NumberFormat(L==='it'?'it-IT':'en-GB',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n||0);
+function calc(a,p){const vol=p.c*p.tx*p.tk,big=p.b/100,eff=1-p.d/100;let rec=0;
+ if(a.model==='bundle'){const cl=a.clusters.find(x=>p.tx>=x.min&&p.tx<=x.max);
+  const fee=cl?cl.fee:(a.clusters.length?[...a.clusters].sort((x,y)=>y.min-x.min)[0].fee:0);rec=p.c*fee*((1-big)+big*eff)}
+ if(a.model==='pct')rec=vol*Math.max(0,a.mdr-a.cost)/100*a.share/100*((1-big)+big*eff);
+ if(a.model==='custom')rec=(p.c*(a.recfix||0)+p.c*p.tx*(a.pertx||0)+vol*Math.max(0,a.mdr-a.cost)/100*(a.share||0)/100)*((1-big)+big*eff);
+ const one=p.n*a.inst,lic=p.c*(a.lic+a.maint);return{rec,one,lic,tot:rec+one+lic}}
+function revenue(){
+ const par=`<div class="g g4">
+  <label class="sm dim">${t('Clienti attivi','Active clients')}${tip(G.clients)}<input type="number" id="s_c" value="${SP.c}"></label>
+  <label class="sm dim">${t('Transazioni/anno per cliente','Tx/year per client')}${tip(G.tx)}<input type="number" id="s_tx" value="${SP.tx}"></label>
+  <label class="sm dim">${t('Scontrino medio €','Avg ticket €')}${tip(G.ticket)}<input type="number" id="s_tk" value="${SP.tk}"></label>
+  <label class="sm dim">${t('Nuove attivazioni/anno','New activations/yr')}${tip(G.newc)}<input type="number" id="s_n" value="${SP.n}"></label></div>
+  <div class="g g2" style="margin-top:10px">
+  <label class="sm dim">${t('Sconto fee clienti grandi %','Large-client discount %')}${tip(G.disc)}<input type="number" id="s_d" value="${SP.d}"></label>
+  <label class="sm dim">${t('Quota clienti grandi %','Large clients %')}${tip(G.big)}<input type="number" id="s_b" value="${SP.b}"></label></div>
+  <div class="calc" id="volout"></div>`;
+ const chart=`<svg id="chart" viewBox="0 0 640 300" width="100%" height="300" preserveAspectRatio="xMidYMid meet"></svg>
+  <div class="lg" id="clg"></div><p class="sm" id="verdict" style="margin-top:12px"></p>
+  <div class="row" style="margin-top:12px"><button class="btn xs" id="showcalc">${t('Mostra i calcoli','Show the maths')}</button></div>
+  <div id="calcbox" class="hidden"></div>`;
+ const models=`<div class="g g3" id="acards"></div>`;
+ const M={par:[t('Parametri comuni','Shared inputs'),par,'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6','var(--jade)'],
+  chart:[t('Confronto acquirer','Acquirer comparison'),chart,'M4 19V9M10 19V5M16 19v-7M22 19H2','var(--acc)'],
+  models:[t('Modelli per operatore','Per-operator models'),models,'M3 7h18M3 12h18M3 17h18','var(--violet)']};
+ $('#p-revenue').innerHTML=`<h1>${t('Simulatore','Simulator')}</h1>
+  <p class="lead">${t('Gli stessi clienti, i modelli a confronto. Passa il mouse sulla i accanto a ogni voce per sapere cosa significa, e apri i calcoli per verificare ogni cifra.','Same clients, models compared. Hover the i for a plain explanation, open the maths to check every figure.')}</p>`+
+  S.layout.revenue.map(k=>modWrap('revenue',k,M[k][0],M[k][1],M[k][2],M[k][3])).join('');
+ acards();['s_c','s_tx','s_tk','s_n','s_d','s_b'].forEach(i=>{const e=$('#'+i);if(e)e.addEventListener('input',()=>{SP[i.slice(2)]=+e.value||0;sim()})});
+ $('#showcalc').onclick=()=>{CALC=!CALC;$('#calcbox').classList.toggle('hidden',!CALC);
+  $('#showcalc').textContent=CALC?t('Nascondi i calcoli','Hide the maths'):t('Mostra i calcoli','Show the maths');sim()};
+ sim()}
+let CALC=false;
+let SP={c:50,tx:3000,tk:28,n:50,d:0,b:0};
+function acards(){const box=$('#acards');if(!box)return;
+ box.innerHTML=S.acq.map(a=>`<div class="card" draggable="true" data-acard="${a.id}" data-anchor="Modello ${esc(a.name)}" style="border-top:3px solid ${a.color}">
+  <h3 class="acq"><span class="hd">⠿</span><span class="dot" style="background:${a.color}"></span>${esc(a.name)}</h3>
+  <label class="sm dim" style="display:block;margin-top:8px">${t('Modello','Model')}
+   <select data-am="${a.id}"><option value="bundle" ${a.model==='bundle'?'selected':''}>${t('Bundle a cluster di transazioni','Transaction-cluster bundle')}</option>
+   <option value="pct" ${a.model==='pct'?'selected':''}>${t('Quota % sul margine acquirer','% of acquirer margin')}</option>
+   <option value="flat" ${a.model==='flat'?'selected':''}>${t('Premio fisso per POS attivato','Flat bonus per POS')}</option>
+   <option value="custom" ${a.model==='custom'?'selected':''}>${t('Modello personalizzato','Custom model')}</option></select></label>
+  <p class="sm dim" style="margin-top:6px">${a.model==='bundle'?G.bundle:a.model==='pct'?G.pctm:a.model==='flat'?G.flat:G.custom}</p>
+  ${a.model==='custom'?`<div style="margin-top:8px">
+   <label class="sm dim">${t('Nome del modello','Model name')}<input value="${esc(a.mname||'')}" data-amn="${a.id}" placeholder="${t('Come lo chiamiamo in trattativa','Name it')}"></label>
+   <div class="g g2" style="margin-top:8px">
+    <label class="sm dim">${t('Fisso €/cliente/anno','Fixed €/client/yr')}<input type="number" data-af="${a.id}|recfix" value="${a.recfix||0}"></label>
+    <label class="sm dim">${t('€ per transazione','€ per transaction')}<input type="number" step=".001" data-af="${a.id}|pertx" value="${a.pertx||0}"></label></div>
+   <p class="sm dim" style="margin-top:6px">${t('Le tre leve si sommano: fisso per cliente, importo per transazione e quota % sul margine. Metti a zero quelle che non usi.','The three levers add up; zero out what you don\'t use.')}</p></div>`:''}
+  <div class="g g2" style="margin-top:8px">
+   <label class="sm dim">${t('Premio attivazione €','Activation bonus €')}${tip(G.inst)}<input type="number" data-af="${a.id}|inst" value="${a.inst}"></label>
+   <label class="sm dim">${t('Quota % sul margine','% of margin')}${tip(G.share)}<input type="number" data-af="${a.id}|share" value="${a.share}" ${(a.model!=='pct'&&a.model!=='custom')?'disabled':''}></label>
+   <label class="sm dim">MDR %${tip(G.mdr)}<input type="number" step=".01" data-af="${a.id}|mdr" value="${a.mdr}"></label>
+   <label class="sm dim">Interchange+scheme %${tip(G.inter+' '+G.scheme)}<input type="number" step=".01" data-af="${a.id}|cost" value="${a.cost}"></label>
+   <label class="sm dim">${t('Licenza €/anno','Licence €/yr')}${tip(G.lic)}<input type="number" data-af="${a.id}|lic" value="${a.lic}"></label>
+   <label class="sm dim">${t('Manutenzione €/anno','Maintenance €/yr')}${tip(G.maint)}<input type="number" data-af="${a.id}|maint" value="${a.maint}"></label></div>
+  ${a.model==='bundle'?`<div style="margin-top:12px"><div class="sm dim" style="margin-bottom:6px">${t('Cluster transazioni → fee annuale POS. Modello specifico di','Clusters → annual POS fee. Specific to')} ${esc(a.name)}.</div>
+   <div style="overflow-x:auto"><table class="clt"><thead><tr><th>Cluster</th><th>Min</th><th>Max</th><th>Fee €</th><th></th></tr></thead><tbody>
+   ${a.clusters.map((c,i)=>`<tr><td><input value="${esc(c.k)}" data-cl="${a.id}|${i}|k"></td>
+    <td><input type="number" value="${c.min}" data-cl="${a.id}|${i}|min"></td><td><input type="number" value="${c.max}" data-cl="${a.id}|${i}|max"></td>
+    <td><input type="number" value="${c.fee}" data-cl="${a.id}|${i}|fee"></td>
+    <td><button class="btn xs dg" data-act="cluster:${a.id}|${i}" style="padding:2px 8px">−</button></td></tr>`).join('')}</tbody></table></div>
+   <button class="btn xs add" data-cladd="${a.id}" style="margin-top:8px">+ Cluster</button></div>`:''}
+  ${a.model==='pct'?`<p class="sm dim" style="margin-top:8px">${t('Nessun premio per installazione: il ricavo arriva solo dal margine sul transato.','Revenue only from margin on volume.')}</p>`:''}
+  ${a.model==='flat'?`<p class="sm dim" style="margin-top:8px">${t('Premio secco per POS attivato, nessuna revenue ricorrente.','Flat bonus, no recurring revenue.')}</p>`:''}</div>`).join('');
+ box.querySelectorAll('[data-am]').forEach(s=>s.onchange=()=>{S.acq.find(a=>a.id===s.dataset.am).model=s.value;save(1);acards();sim()});
+ box.querySelectorAll('[data-af]').forEach(i=>i.addEventListener('input',()=>{const[id,f]=i.dataset.af.split('|');S.acq.find(a=>a.id===id)[f]=+i.value||0;qs();sim()}));
+ box.querySelectorAll('[data-amn]').forEach(i=>i.addEventListener('input',()=>{S.acq.find(a=>a.id===i.dataset.amn).mname=i.value;qs();sim()}));
+ box.querySelectorAll('[data-cl]').forEach(i=>i.addEventListener('input',()=>{const[id,ix,f]=i.dataset.cl.split('|');
+  S.acq.find(a=>a.id===id).clusters[ix][f]=f==='k'?i.value:(+i.value||0);qs();sim()}));
+ box.querySelectorAll('[data-cladd]').forEach(b=>b.onclick=()=>{S.acq.find(a=>a.id===b.dataset.cladd).clusters.push({k:'',min:0,max:0,fee:0});save(1);revenue();toast(t('Cluster aggiunto','Added'))});
+ let s=null;box.querySelectorAll('[data-acard]').forEach(c=>{
+  c.addEventListener('dragstart',e=>{s=c;e.dataTransfer.setData('text','x')});
+  c.addEventListener('dragover',e=>e.preventDefault());
+  c.addEventListener('drop',e=>{e.preventDefault();if(!s||s===c)return;const A=S.acq;
+   const a=A.findIndex(x=>x.id===s.dataset.acard),b=A.findIndex(x=>x.id===c.dataset.acard);
+   A.splice(b,0,A.splice(a,1)[0]);save(1);acards();sim()})})}
+function sim(){const sv=$('#chart');if(!sv)return;
+ const res=S.acq.map(a=>({a,...calc(a,SP)})),max=Math.max(...res.map(r=>r.tot),1);
+ const vol=SP.c*SP.tx*SP.tk;
+ const vo=$('#volout');
+ if(vo)vo.innerHTML=`<span class="op">${t('transato annuo','annual volume')} =</span> ${SP.c} ${t('clienti','clients')} <span class="op">×</span> ${SP.tx.toLocaleString('it-IT')} ${t('transazioni','tx')} <span class="op">×</span> ${SP.tk} € <span class="op">=</span> <span class="res">${eur(vol)}</span>${tip(G.vol)}`;
+ const W=640,base=228,pad=34,gw=(W-pad*2)/Math.max(res.length,1),bw=Math.min(58,gw*.36);
+ let defs='<defs>';
+ res.forEach(r=>{defs+=`<pattern id="hx-${r.a.id}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+  <rect width="6" height="6" fill="${r.a.color}" opacity=".18"/><rect width="2.6" height="6" fill="${r.a.color}" opacity=".7"/></pattern>
+  <pattern id="dt-${r.a.id}" width="6" height="6" patternUnits="userSpaceOnUse">
+  <rect width="6" height="6" fill="${r.a.color}" opacity=".1"/><circle cx="3" cy="3" r="1.3" fill="${r.a.color}" opacity=".6"/></pattern>`});
+ defs+='</defs>';
+ let h=defs;
+ for(let k=1;k<=3;k++){const y=base-(180/3)*k;h+=`<line x1="${pad-10}" y1="${y}" x2="${W-pad+10}" y2="${y}" stroke="var(--line)" stroke-dasharray="2 5"/>`}
+ h+=`<line x1="${pad-10}" y1="${base}" x2="${W-pad+10}" y2="${base}" stroke="var(--line)"/>`;
+ res.forEach((r,i)=>{const cx=pad+gw*i+gw/2;let y=base;
+  [[r.rec,r.a.color],[r.one,`url(#hx-${r.a.id})`],[r.lic,`url(#dt-${r.a.id})`]].forEach(([v,fill])=>{
+   const hh=(v/max)*180;if(hh<=0)return;y-=hh;
+   h+=`<rect x="${cx-bw/2}" y="${y}" width="${bw}" height="${hh}" fill="${fill}" stroke="var(--sur)" stroke-width="1.2">
+    <animate attributeName="height" from="0" to="${hh}" dur=".45s" fill="freeze"/></rect>`});
+  h+=`<text x="${cx}" y="${y-9}" text-anchor="middle" font-size="12" font-weight="600" fill="${r.a.color}">${eur(r.tot)}</text>
+   <text x="${cx}" y="${base+20}" text-anchor="middle" font-size="11" fill="var(--ink)" font-weight="500">${esc(r.a.name).length>15?esc(r.a.name).slice(0,14)+'…':esc(r.a.name)}</text>
+   <text x="${cx}" y="${base+36}" text-anchor="middle" font-size="10" fill="var(--dim)">${t('ricorrente','recurring')} ${eur(r.rec)}</text>`});
+ sv.innerHTML=h;
+ $('#clg').innerHTML=`<span><i style="background:var(--dim)"></i>${t('Ricorrente','Recurring')}${tip(G.rec)}</span>
+  <span><i style="background:repeating-linear-gradient(45deg,var(--dim) 0 2px,transparent 2px 5px)"></i>${t('Attivazioni','Activations')}${tip(G.one)}</span>
+  <span><i style="background:radial-gradient(circle,var(--dim) 32%,transparent 34%);background-size:5px 5px"></i>${t('Licenze','Licences')}${tip(G.liq)}</span>`;
+ const w=[...res].sort((x,y)=>y.tot-x.tot)[0],l=[...res].sort((x,y)=>x.tot-y.tot)[0],rc=[...res].sort((x,y)=>y.rec-x.rec)[0];
+ $('#verdict').innerHTML=L==='it'
+  ?`Con questi numeri vince <b style="color:${w.a.color}">${esc(w.a.name)}</b> a ${eur(w.tot)}/anno contro ${eur(l.tot)} di ${esc(l.a.name)}. Sul solo ricavo ricorrente, quello che resta quando le installazioni si fermano, il primo è <b style="color:${rc.a.color}">${esc(rc.a.name)}</b> con ${eur(rc.rec)}. È il numero da guardare oltre il primo anno.`
+  :`<b style="color:${w.a.color}">${esc(w.a.name)}</b> wins at ${eur(w.tot)}/yr against ${eur(l.tot)}. On recurring revenue alone <b style="color:${rc.a.color}">${esc(rc.a.name)}</b> leads with ${eur(rc.rec)}.`;
+ const cb=$('#calcbox');if(cb&&CALC)cb.innerHTML=res.map(r=>calcSteps(r,vol)).join('');
+}
+function calcSteps(r,vol){const a=r.a,big=SP.b/100,eff=1-SP.d/100,adj=(1-big)+big*eff;
+ const fee=n=>eur(n);let body='';
+ if(a.model==='bundle'){const cl=a.clusters.find(x=>SP.tx>=x.min&&x.max>=SP.tx);
+  body=`<span class="op">${t('fascia per','band for')} ${SP.tx.toLocaleString('it-IT')} tx/${t('anno','yr')} →</span> ${cl?esc(cl.k)+' = '+fee(cl.fee)+'/'+t('cliente','client'):t('fuori scala, usata la fascia più alta','out of range')}
+   <br><span class="op">${t('ricorrente','recurring')} =</span> ${SP.c} ${t('clienti','clients')} <span class="op">×</span> ${fee(cl?cl.fee:0)} <span class="op">×</span> ${adj.toFixed(3)} <span class="op">(${t('sconto','discount')})</span> <span class="op">=</span> <span class="res">${fee(r.rec)}</span>`}
+ if(a.model==='pct'){const m=vol*Math.max(0,a.mdr-a.cost)/100;
+  body=`<span class="op">${t('margine acquirer','acquirer margin')} =</span> ${eur(vol)} <span class="op">×</span> (${a.mdr}% − ${a.cost}%) <span class="op">=</span> ${fee(m)}
+   <br><span class="op">${t('nostra quota','our share')} =</span> ${fee(m)} <span class="op">×</span> ${a.share}% <span class="op">×</span> ${adj.toFixed(3)} <span class="op">=</span> <span class="res">${fee(r.rec)}</span>`}
+ if(a.model==='flat')body=`<span class="op">${t('nessun ricorrente: solo premio per attivazione','no recurring: activation bonus only')}</span> <span class="op">=</span> <span class="res">${fee(0)}</span>`;
+ if(a.model==='custom'){const m=vol*Math.max(0,a.mdr-a.cost)/100;
+  body=`<span class="op">${t('fisso','fixed')} =</span> ${SP.c} <span class="op">×</span> ${fee(a.recfix||0)} <span class="op">=</span> ${fee(SP.c*(a.recfix||0))}
+   <br><span class="op">${t('per transazione','per tx')} =</span> ${(SP.c*SP.tx).toLocaleString('it-IT')} tx <span class="op">×</span> ${(a.pertx||0)} € <span class="op">=</span> ${fee(SP.c*SP.tx*(a.pertx||0))}
+   <br><span class="op">${t('quota margine','margin share')} =</span> ${fee(m)} <span class="op">×</span> ${a.share||0}% <span class="op">=</span> ${fee(m*(a.share||0)/100)}
+   <br><span class="op">${t('ricorrente','recurring')} =</span> <span class="res">${fee(r.rec)}</span>`}
+ return `<div class="calc" style="border-left:3px solid ${a.color}">
+  <b style="color:${a.color};font-family:Inter,sans-serif">${esc(a.name)}</b>
+  <span class="badge" style="margin-left:8px;font-family:Inter,sans-serif">${modelName(a)}</span><hr>
+  ${body}<hr>
+  <span class="op">${t('attivazioni','activations')} =</span> ${SP.n} <span class="op">×</span> ${fee(a.inst)} <span class="op">=</span> ${fee(r.one)}
+  <br><span class="op">${t('licenze','licences')} =</span> ${SP.c} <span class="op">×</span> (${fee(a.lic)} + ${fee(a.maint)}) <span class="op">=</span> ${fee(r.lic)}
+  <hr><span class="op">${t('totale anno','year total')} =</span> <span class="res" style="color:${a.color}">${fee(r.tot)}</span></div>`}
+function modelName(a){return a.model==='bundle'?t('cluster','clusters'):a.model==='pct'?t('quota sul margine','margin share'):
+ a.model==='flat'?t('premio fisso','flat bonus'):(a.mname||t('personalizzato','custom'))}
+
+/* ================= terminali ================= */
+let DF='all';
+function devices(){
+ const extra={id:'lp',name:'Lp.Pay',color:'#D08A0E'};
+ const opts=[...S.acq,extra];
+ const col=id=>opts.find(a=>a.id===id)?.color||'var(--dim)';
+ const list=S.devices.filter(d=>DF==='all'||d.a===DF);
+ const filt=`<div class="segs">${[{id:'all',name:t('Tutti','All')},...opts].map(a=>`<button data-df="${a.id}" class="${DF===a.id?'on':''}">${a.id!=='all'?`<span class="dot" style="background:${a.color};margin-right:6px"></span>`:''}${esc(a.name)}</button>`).join('')}</div>`;
+ const maxV=Math.max(...list.map(d=>Math.max(d.una+d.can*12,d.rev)),1);
+ const rowsH=list.map((d,i)=>{const y=18+i*46,x0=210,W=300;
+  const w1=(d.una/maxV)*W,w2=(d.can*12/maxV)*W,w3=(d.rev/maxV)*W;
+  const nm=esc(d.n).length>28?esc(d.n).slice(0,27)+'…':esc(d.n);
+  return `<text x="0" y="${y+11}" font-size="11.5" fill="var(--ink)">${nm}</text>
+   <rect x="${x0}" y="${y}" width="${Math.max(w1,0)}" height="11" rx="3" fill="${col(d.a)}"/>
+   <rect x="${x0+w1}" y="${y}" width="${Math.max(w2,0)}" height="11" rx="3" fill="${col(d.a)}" opacity=".5"/>
+   <rect x="${x0}" y="${y+15}" width="${Math.max(w3,0)}" height="7" rx="3" fill="var(--green)"/>
+   <text x="${x0+W+10}" y="${y+12}" font-size="10" fill="var(--dim)">${eur(d.una)}+${eur(d.can*12)}/a · ${eur(d.rev)}</text>`}).join('');
+ const chart=`<svg viewBox="0 0 640 ${40+list.length*46}" width="100%" preserveAspectRatio="xMidYMin meet">${rowsH}</svg>
+  <div class="lg"><span><i style="background:var(--dim)"></i>${t('Una tantum','One-off')}</span><span><i style="background:var(--dim);opacity:.5"></i>${t('Canone annualizzato','Annualised fee')}</span><span><i style="background:var(--green)"></i>${t('Ricavo Lp.Pay per installazione','Lp.Pay revenue per install')}</span></div>`;
+ const cards=`<div class="row" style="margin-bottom:12px"><button class="btn xs add" id="dadd">+ Terminale</button></div>
+  <div class="g g2">${list.map(d=>`<div class="card" data-anchor="Terminale · ${esc(d.n)}" style="border-left:3px solid ${col(d.a)}">
+   <div class="row" style="justify-content:space-between"><h3 class="acq"><span class="dot" style="background:${col(d.a)}"></span><span contenteditable data-dn="${d.id}">${esc(d.n)}</span></h3>
+    <select data-da="${d.id}" style="width:auto;padding:3px 9px;font-size:.75rem;border-radius:999px">${opts.map(a=>`<option value="${a.id}" ${d.a===a.id?'selected':''}>${esc(a.name)}</option>`).join('')}</select></div>
+   <div class="kv"><span>${t('Proprietà','Ownership')}</span><b contenteditable data-dk="${d.id}|own">${esc(d.own)}</b></div>
+   <div class="kv"><span>OS / integrazione</span><b contenteditable data-dk="${d.id}|os">${esc(d.os)}</b></div>
+   <div class="g g3" style="margin-top:10px">
+    <label class="sm dim">${t('Una tantum €','One-off €')}${tip(G.una)}<input type="number" data-dv="${d.id}|una" value="${d.una}"></label>
+    <label class="sm dim">${t('Canone €/mese','Fee €/mo')}${tip(G.can)}<input type="number" data-dv="${d.id}|can" value="${d.can}"></label>
+    <label class="sm dim">${t('Ricavo Lp.Pay €','Lp.Pay revenue €')}${tip(G.revd)}<input type="number" data-dv="${d.id}|rev" value="${d.rev}"></label></div>
+   <p class="sm dim" contenteditable data-dk="${d.id}|note" style="margin-top:9px">${esc(d.note)}</p>
+   <div class="row" style="margin-top:8px"><button class="btn xs dg" data-act="dev:${d.id}">Elimina</button></div></div>`).join('')||`<p class="sm dim">${t('Nessun terminale per questo filtro.','Nothing for this filter.')}</p>`}</div>`;
+ const multi=`<p class="sm">${t('Tecnicamente un Android può ospitare più applicazioni di pagamento. Commercialmente in Italia quasi mai: il vincolo non è il terminale.','Technically possible, commercially almost never.')}</p>
+  <div class="kv"><span>${t('Chi certifica','Who certifies')}</span><b>${t('L\'acquirer, non il produttore','The acquirer')}</b></div>
+  <div class="kv"><span>${t('Cosa si certifica','What is certified')}</span><b>Kernel EMV, P2PE, PCI PTS</b></div>
+  <div class="kv"><span>${t('Chi ha le chiavi','Who holds the keys')}</span><b>${t('L\'acquirer le inietta nel terminale','The acquirer injects them')}</b></div>
+  <div class="kv"><span>${t('Blocco contrattuale','Contractual lock')}</span><b>${t('Il terminale a canone resta suo','Leased terminal stays theirs')}</b></div>
+  <p class="sm dim" style="margin-top:10px">${t('Strada realistica: terminali di proprietà certificati con un acquirer per volta, scelto al deployment del punto vendita. Porta la portabilità del parco senza promettere un multi-acquiring simultaneo che nessuno concede oggi.','Realistic path: owned terminals certified with one acquirer at a time.')} <span class="badge warn">${t('da validare','to validate')}</span></p>`;
+ const M={filter:[t('Filtro per acquiring','Filter by acquiring'),filt,'M3 5h18l-7 8v6l-4 2v-8z','var(--blue)'],
+  chart:[t('Confronto costi','Cost comparison'),chart,'M4 19V9M10 19V5M16 19v-7M22 19H2','var(--acc)'],
+  list:[t('Schede terminali','Terminal cards'),cards,'M7 3h10v18H7zM10 18h4','var(--jade)'],
+  multi:[t('Più banche su un solo terminale','Multiple banks on one terminal'),multi,'M3 21h18M5 21V10l7-5 7 5v11','var(--violet)']};
+ $('#p-devices').innerHTML=`<h1>${t('Terminali','Terminals')}</h1>
+  <p class="lead">${t('Filtra per acquiring e confronta i costi. L\'hardware decide quanto siamo sostituibili.','Filter by acquiring and compare costs.')}</p>`+
+  S.layout.devices.map(k=>modWrap('devices',k,M[k][0],M[k][1],M[k][2],M[k][3])).join('');
+ const P=$('#p-devices');
+ P.querySelectorAll('[data-df]').forEach(b=>b.onclick=()=>{DF=b.dataset.df;devices()});
+ P.querySelector('#dadd').onclick=()=>{S.devices.push({id:uid(),n:t('Nuovo terminale','New terminal'),a:DF==='all'?'lp':DF,own:'',os:'',una:0,can:0,rev:0,note:''});save(1);devices();toast(t('Terminale aggiunto','Added'))};
+ P.querySelectorAll('[data-dn]').forEach(x=>x.addEventListener('input',()=>{S.devices.find(d=>d.id===x.dataset.dn).n=x.textContent;qs()}));
+ P.querySelectorAll('[data-dk]').forEach(x=>x.addEventListener('input',()=>{const[id,f]=x.dataset.dk.split('|');S.devices.find(d=>d.id===id)[f]=x.textContent;qs()}));
+ P.querySelectorAll('[data-dv]').forEach(x=>x.addEventListener('change',()=>{const[id,f]=x.dataset.dv.split('|');S.devices.find(d=>d.id===id)[f]=+x.value||0;save(1);devices()}));
+ P.querySelectorAll('[data-da]').forEach(x=>x.onchange=()=>{S.devices.find(d=>d.id===x.dataset.da).a=x.value;save(1);devices()})}
+
+/* ================= roadmap ================= */
+function roadmap(){
+ const cur=$('#rdsel')?.value||S.compare.cols[0]?.id;
+ $('#p-roadmap').innerHTML=`<h1>Roadmap</h1><p class="lead">${t('Una lista per operatore. Nessuna data vale finché non arriva da loro per iscritto.','One list per operator.')}</p>
+  <div class="row" style="margin-bottom:12px"><select id="rdsel" style="max-width:250px">${S.compare.cols.map(c=>`<option value="${c.id}" ${c.id===cur?'selected':''}>${esc(c.name)}</option>`).join('')}</select>
+  <button class="btn xs add" id="rdadd">+ Attività</button></div><div class="card" id="rdlist" data-anchor="Roadmap"></div>`;
+ $('#rdsel').onchange=roadmap;
+ $('#rdadd').onclick=()=>{const p=$('#rdsel').value;(S.roadmap[p]=S.roadmap[p]||[]).push({id:uid(),t:t('Nuova attività','New task'),s:0,w:'',d:''});save(1);roadmap();toast(t('Attività aggiunta','Added'))};
+ const p=$('#rdsel').value;S.roadmap[p]=S.roadmap[p]||[];const l=S.roadmap[p];
+ const c=S.compare.cols.find(x=>x.id===p)?.color||'var(--dim)';
+ $('#rdlist').innerHTML=l.length?l.map(i=>`<div class="todo ${i.s?'done':''}" data-anchor="Roadmap · ${esc(i.t).slice(0,34)}">
+  <input type="checkbox" ${i.s?'checked':''} data-tg="${i.id}" style="width:17px;height:17px;margin-top:3px;flex:none;accent-color:${c}">
+  <div class="t"><div contenteditable data-rt="${i.id}">${esc(i.t)}</div>
+  <div class="row" style="margin-top:5px"><input style="width:125px;padding:2px 8px;font-size:.78rem" placeholder="${t('referente','owner')}" value="${esc(i.w)}" data-rw="${i.id}">
+  <input type="date" style="width:148px;padding:2px 8px;font-size:.78rem" value="${i.d||''}" data-rd="${i.id}">
+  <button class="btn xs dg" data-act="task:${i.id}">Elimina</button></div></div></div>`).join(''):`<p class="sm dim">${t('Nessuna attività.','No tasks.')}</p>`;
+ const b=$('#rdlist');
+ b.querySelectorAll('[data-tg]').forEach(x=>x.onchange=()=>{l.find(y=>y.id===x.dataset.tg).s=x.checked?1:0;save(1);roadmap()});
+ b.querySelectorAll('[data-rt]').forEach(x=>x.addEventListener('input',()=>{l.find(y=>y.id===x.dataset.rt).t=x.textContent;qs()}));
+ b.querySelectorAll('[data-rw]').forEach(x=>x.addEventListener('input',()=>{l.find(y=>y.id===x.dataset.rw).w=x.value;qs()}));
+ b.querySelectorAll('[data-rd]').forEach(x=>x.addEventListener('input',()=>{l.find(y=>y.id===x.dataset.rd).d=x.value;qs()}))}
+
+/* ================= decisioni ================= */
+const ST={confirmed:[t('Confermata','Confirmed'),'var(--green)'],blocked:[t('Bloccata','Blocked'),'var(--red)'],standby:[t('In stand-by','On hold'),'var(--amber)']};
+function decisions(){
+ const list=`<div class="row" style="margin-bottom:12px"><button class="btn xs add" id="dcadd">+ Richiesta</button></div>
+  ${S.decisions.map(d=>`<div class="card" style="margin-bottom:10px;border-left:3px solid ${ST[d.s]?.[1]||'var(--line)'}" data-anchor="Decisione · ${esc(d.t).slice(0,34)}">
+   <div class="row" style="justify-content:space-between;align-items:flex-start"><h3 contenteditable data-dt="${d.id}" style="flex:1;min-width:150px">${esc(d.t)}</h3>
+    <span class="badge" style="border-color:${ST[d.s]?.[1]||'var(--line)'};color:${ST[d.s]?.[1]||'var(--dim)'}">${ST[d.s]?.[0]||'—'}</span></div>
+   <p class="sm dim" contenteditable data-dnn="${d.id}" style="margin:8px 0">${esc(d.n)}</p>
+   <div class="row"><input style="width:135px;padding:3px 9px;font-size:.78rem" placeholder="${t('referente','owner')}" value="${esc(d.w)}" data-dw="${d.id}">
+   <div class="segs">${Object.entries(ST).map(([k,v])=>`<button data-ds="${d.id}|${k}" class="${d.s===k?'on':''}">${v[0]}</button>`).join('')}</div>
+   <button class="btn xs dg" data-act="dec:${d.id}">Elimina</button></div></div>`).join('')||`<p class="sm dim">${t('Nessuna richiesta.','No requests.')}</p>`}`;
+ $('#p-decisions').innerHTML=`<h1>${t('Decisioni','Decisions')}</h1><p class="lead">${t('Ogni richiesta ha uno stato esplicito. Nessuna voce resta senza risposta.','Every request has an explicit status.')}</p>`+
+  modWrap('decisions','list',t('Richieste','Requests'),list,'M9 12l2 2 4-4M12 3l8 4v6c0 4-3.5 7-8 8-4.5-1-8-4-8-8V7z','var(--green)');
+ const P=$('#p-decisions');
+ P.querySelector('#dcadd').onclick=()=>{S.decisions.push({id:uid(),t:t('Nuova richiesta','New request'),w:'',s:'standby',n:''});save(1);decisions();toast(t('Richiesta aggiunta','Added'))};
+ P.querySelectorAll('[data-dt]').forEach(x=>x.addEventListener('input',()=>{S.decisions.find(d=>d.id===x.dataset.dt).t=x.textContent;qs()}));
+ P.querySelectorAll('[data-dnn]').forEach(x=>x.addEventListener('input',()=>{S.decisions.find(d=>d.id===x.dataset.dnn).n=x.textContent;qs()}));
+ P.querySelectorAll('[data-dw]').forEach(x=>x.addEventListener('input',()=>{S.decisions.find(d=>d.id===x.dataset.dw).w=x.value;qs()}));
+ P.querySelectorAll('[data-ds]').forEach(b=>b.onclick=()=>{const[id,s]=b.dataset.ds.split('|');S.decisions.find(d=>d.id===id).s=s;save(1);decisions()})}
+
+/* ================= commenti ================= */
+let CM=false,pend=null,CF='open';
+$('#cmtbtn').onclick=()=>{CM=!CM;document.body.classList.toggle('cmt',CM);$('#cmtbtn').classList.toggle('p',CM);
+ if(CM)toast(t('Clicca l\'elemento da commentare','Click what to comment'))};
+document.addEventListener('click',e=>{if(!CM)return;const el=e.target.closest('[data-anchor]');if(!el)return;
+ e.preventDefault();e.stopPropagation();pend={tab:el.closest('.panel').id.slice(2),anchor:el.dataset.anchor};
+ $('#canchor').textContent=pend.anchor;$('#ctext').value='';$('#cdlg').showModal()},true);
+$('#ccancel').onclick=()=>$('#cdlg').close();
+$('#csave').onclick=()=>{const x=$('#ctext').value.trim();if(!x)return;
+ S.comments.unshift({id:uid(),tab:pend.tab,anchor:pend.anchor,x,st:'open',d:new Date().toISOString().slice(0,10),r:[]});
+ $('#cdlg').close();CM=false;document.body.classList.remove('cmt');$('#cmtbtn').classList.remove('p');
+ save(1);comments();cbadges();toast(t('Commento aggiunto','Comment added'))};
+function comments(){
+ const l=S.comments.filter(c=>CF==='all'||(CF==='open'?c.st==='open':c.st==='done'));
+ $('#p-comments').innerHTML=`<h1>${t('Commenti','Comments')}</h1><p class="lead">${t('Ogni commento è agganciato a un punto preciso. Clicca per tornarci.','Each comment is pinned to a spot.')}</p>
+  <div class="segs" style="margin-bottom:12px"><button data-cf="open" class="${CF==='open'?'on':''}">${t('Aperti','Open')}</button>
+   <button data-cf="done" class="${CF==='done'?'on':''}">${t('Risolti','Resolved')}</button>
+   <button data-cf="all" class="${CF==='all'?'on':''}">${t('Tutti','All')}</button></div>
+  <div id="clist">${l.length?l.map(c=>`<div class="ci ${c.st==='done'?'done':''}">
+   <div class="row" style="justify-content:space-between"><button class="btn xs" data-cgo="${c.id}"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>${esc(c.anchor)}</button><span class="meta">${c.d}</span></div>
+   <p contenteditable data-cx="${c.id}" style="margin:9px 0">${esc(c.x)}</p>
+   ${c.r.map(r=>`<div class="reply"><span class="meta">${r.d}</span><div>${esc(r.x)}</div></div>`).join('')}
+   <div class="row" style="margin-top:9px"><input placeholder="${t('Rispondi e premi invio','Reply and press enter')}" data-crp="${c.id}" style="flex:1;min-width:150px;padding:5px 10px;font-size:.84rem">
+   <button class="btn xs" data-ctg="${c.id}">${c.st==='done'?t('Riapri','Reopen'):t('Risolvi','Resolve')}</button>
+   <button class="btn xs dg" data-act="cmt:${c.id}">Elimina</button></div></div>`).join(''):`<p class="sm dim">${t('Nessun commento. Usa Commenta in alto e clicca il punto che ti interessa.','No comments yet.')}</p>`}</div>`;
+ const P=$('#p-comments');
+ P.querySelectorAll('[data-cf]').forEach(b=>b.onclick=()=>{CF=b.dataset.cf;comments()});
+ P.querySelectorAll('[data-cgo]').forEach(x=>x.onclick=()=>{const c=S.comments.find(y=>y.id===x.dataset.cgo);go(c.tab,c.anchor)});
+ P.querySelectorAll('[data-cx]').forEach(x=>x.addEventListener('input',()=>{S.comments.find(y=>y.id===x.dataset.cx).x=x.textContent;qs()}));
+ P.querySelectorAll('[data-crp]').forEach(x=>x.addEventListener('keydown',e=>{if(e.key!=='Enter'||!x.value.trim())return;
+  S.comments.find(y=>y.id===x.dataset.crp).r.push({x:x.value.trim(),d:new Date().toISOString().slice(0,10)});save(1);comments()}));
+ P.querySelectorAll('[data-ctg]').forEach(x=>x.onclick=()=>{const c=S.comments.find(y=>y.id===x.dataset.ctg);c.st=c.st==='done'?'open':'done';save(1);comments();cbadges()})}
+function cbadges(){TABS.forEach(x=>{if(x[0]==='SEP')return;const n=S.comments.filter(c=>c.tab===x[0]&&c.st==='open').length;
+ const e=$('#cb-'+x[0]);if(e)e.outerHTML=`<span id="cb-${x[0]}">${n?`<span class="cbadge">${n}</span>`:''}</span>`})}
+
+/* ================= pagamento ================= */
+let st=0,tm=null,FEEON=false;
+function flowPanel(){
+ const anim=`<svg id="flowsvg" viewBox="0 0 900 275" width="100%" preserveAspectRatio="xMidYMid meet"></svg>
+  <div class="ctr"><button class="btn" id="fprev"><svg class="ico" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+   <button class="btn p" id="fplay"><svg class="ico" viewBox="0 0 24 24" id="fpi"><path d="M7 5l12 7-12 7z" fill="currentColor" stroke="none"/></svg><span id="fplayt">${t('Avvia','Play')}</span></button>
+   <button class="btn" id="fnext"><svg class="ico" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+   <button class="btn" id="ffee"><svg class="ico" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span id="ffeet">${t('Mostra le fee','Show the fees')}</span></button></div>
+  <div style="text-align:center;border-top:1px solid var(--line);padding-top:14px"><h3 id="ft"></h3>
+   <p class="dim sm" id="fd" style="max-width:58ch;margin:6px auto 0"></p><p class="meta" id="fs" style="margin-top:8px"></p></div>`;
+ const split=`<div class="g g3">
+   <label class="sm dim">MDR esercente %${tip(G.mdr)}<input type="number" step=".01" id="f_mdr" value="1.49"></label>
+   <label class="sm dim">Interchange %${tip(G.inter)}<input type="number" step=".01" id="f_ic" value="0.30"></label>
+   <label class="sm dim">Scheme fee %${tip(G.scheme)}<input type="number" step=".01" id="f_sc" value="0.12"></label></div>
+  <div class="fbar" id="fbar" style="margin-top:12px"></div>
+  <div class="lg"><span><i style="background:#0E8174"></i>${t('Esercente netto','Merchant net')}</span><span><i style="background:#2C6EF2"></i>Interchange</span>
+   <span><i style="background:#D08A0E"></i>Scheme fee</span><span><i style="background:#C41E6B"></i>${t('Margine acquirer','Acquirer margin')}</span></div>
+  <p class="sm dim" style="margin-top:10px">${t('Cap UE: 0,20% debito consumer, 0,30% credito consumer (Reg. UE 2015/751). Carte commercial ed extra-EEA sono fuori dal cap: lì i margini si allargano.','EU caps: 0.20% consumer debit, 0.30% consumer credit.')}</p>`;
+ const M={anim:[t('Il percorso della transazione','The transaction path'),anim,'M3 12h4l3 7 4-14 3 7h4','var(--violet)'],
+  split:[t('Ripartizione su 100 € di incasso','Split on €100'),split,'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6','var(--jade)']};
+ $('#p-flow').innerHTML=`<h1>${t('Come funziona un pagamento','How a payment works')}</h1>
+  <p class="lead">${t('Cinque passaggi, due secondi reali. Sotto, chi trattiene cosa sullo stesso euro.','Five steps, two real seconds.')}</p>`+
+  S.layout.flow.map(k=>modWrap('flow',k,M[k][0],M[k][1],M[k][2],M[k][3])).join('');
+ $('#fnext').onclick=()=>{st=(st+1)%5;drawFlow()};$('#fprev').onclick=()=>{st=(st+4)%5;drawFlow()};
+ $('#ffee').onclick=()=>{FEEON=!FEEON;$('#ffee').classList.toggle('p',FEEON);
+  $('#ffeet').textContent=FEEON?t('Nascondi le fee','Hide the fees'):t('Mostra le fee','Show the fees');drawFlow()};
+ $('#fplay').onclick=()=>{const l=$('#fplayt'),i=$('#fpi');
+  if(tm){clearInterval(tm);tm=null;l.textContent=t('Avvia','Play');i.innerHTML='<path d="M7 5l12 7-12 7z" fill="currentColor" stroke="none"/>';return}
+  l.textContent=t('Pausa','Pause');i.innerHTML='<path d="M8 5h3v14H8zM13 5h3v14h-3z" fill="currentColor" stroke="none"/>';
+  tm=setInterval(()=>{st=(st+1)%5;drawFlow()},2400)};
+ ['f_mdr','f_ic','f_sc'].forEach(i=>$('#'+i).addEventListener('input',fbar));
+ drawFlow();fbar()}
+function drawFlow(){const sv=$('#flowsvg');if(!sv)return;const f=FLOW[st],li=L==='it'?0:1;
+ const X=i=>90+i*180, Y=150;
+ let h=`<defs><filter id="sft" x="-40%" y="-40%" width="180%" height="180%">
+  <feDropShadow dx="0" dy="3" stdDeviation="5" flood-opacity=".16"/></filter></defs>`;
+ h+=`<rect x="20" y="96" width="860" height="108" rx="54" fill="var(--soft)" opacity=".7"/>`;
+ for(let i=0;i<4;i++){const a=X(i),b=X(i+1),on=(f.a===i&&f.b===i+1);
+  h+=`<path d="M${a+46} ${Y} L${b-46} ${Y}" stroke="${on?'var(--acc)':'var(--line)'}" stroke-width="${on?3:2}" stroke-linecap="round" ${st===4?'stroke-dasharray="2 8"':''}/>`;
+  if(on)h+=`<path d="M${b-56} ${Y-6} l8 6 -8 6" stroke="var(--acc)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`}
+ if(st===4){h+=`<path d="M${X(4)} ${Y-48} C ${X(4)-70} ${Y-120}, ${X(1)+70} ${Y-120}, ${X(1)} ${Y-48}"
+   stroke="var(--jade)" stroke-width="2.4" fill="none" stroke-dasharray="7 6" stroke-linecap="round"/>
+  <path d="M${X(1)+12} ${Y-56} l-12 8 4 -13" stroke="var(--jade)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="450" y="${Y-108}" text-anchor="middle" font-size="12" fill="var(--jade)" font-weight="600">${t('accredito il giorno lavorativo successivo','funds land next business day')}</text>`}
+ NODES.forEach((n,i)=>{const x=X(i),on=f.a===i||f.b===i;
+  h+=`<g opacity="${on?1:.38}">
+   ${on?`<circle cx="${x}" cy="${Y}" r="50" fill="${n[2]}" opacity=".12"><animate attributeName="r" values="40;54;50" dur=".6s" fill="freeze"/></circle>`:''}
+   <circle cx="${x}" cy="${Y}" r="${on?38:32}" fill="${n[2]}" filter="url(#sft)"/>
+   <g transform="translate(${x-11},${Y-11})" stroke="#fff" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${n[3]}" transform="scale(.92)"/></g>
+   <text x="${x}" y="${Y+68}" text-anchor="middle" font-size="12" fill="var(--ink)" font-weight="${on?600:400}">${n[li]}</text>
+   <text x="${x}" y="${Y+84}" text-anchor="middle" font-size="10" fill="var(--dim)">${['carta o telefono','terminale e cassa','Nexi · Dojo · Sella','Visa · MC · PagoBANCOMAT','banca del cliente'][i]}</text></g>`});
+ const ax=X(f.a),bx=X(f.b);
+ if(st!==4)h+=`<circle r="6.5" fill="var(--acc)"><animate attributeName="cx" values="${ax};${bx}" dur="1.3s" repeatCount="indefinite"/>
+  <animate attributeName="cy" values="${Y};${Y}" dur="1.3s" repeatCount="indefinite"/>
+  <animate attributeName="opacity" values="0;1;1;0" dur="1.3s" repeatCount="indefinite"/></circle>`;
+ if(FEEON){const g=i=>+($('#'+i)?.value||0),m=g('f_mdr')||1.49,ic=g('f_ic')||.30,sc=g('f_sc')||.12,acq=Math.max(0,m-ic-sc);
+  const F=[[1,`${t('paga','pays')} ${m}%`,'var(--acc)',t('su 100 € ne riceve','of €100 keeps')+' '+(100-m).toFixed(2)+' €'],
+   [2,`${t('trattiene','keeps')} ${acq.toFixed(2)}%`,'var(--jade)',t('da qui esce la nostra quota','our share comes from here')],
+   [3,`${t('trattiene','keeps')} ${sc}%`,'var(--amber)','scheme fee'],
+   [4,`${t('trattiene','keeps')} ${ic}%`,'var(--blue)','interchange']];
+  F.forEach(([i,lab,col,sub])=>{const x=X(i);
+   h+=`<g><path d="M${x} ${Y-44} L${x} ${Y-64}" stroke="${col}" stroke-width="1.5" stroke-dasharray="3 3"/>
+    <rect x="${x-62}" y="${Y-100}" width="124" height="36" rx="10" fill="${col}" opacity=".13"/>
+    <rect x="${x-62}" y="${Y-100}" width="124" height="36" rx="10" fill="none" stroke="${col}" stroke-width="1"/>
+    <text x="${x}" y="${Y-84}" text-anchor="middle" font-size="12" font-weight="700" fill="${col}">${lab}</text>
+    <text x="${x}" y="${Y-71}" text-anchor="middle" font-size="9" fill="var(--dim)">${sub}</text></g>`})}
+ h+=`<g transform="translate(450,44)"><rect x="-86" y="-17" width="172" height="28" rx="14" fill="${st===4?'var(--jade)':'var(--acc)'}" opacity=".12"/>
+  <text x="0" y="2" text-anchor="middle" font-size="12" font-weight="600" fill="${st===4?'var(--jade)':'var(--acc)'}">${st===4?'settlement':t('autorizzazione','authorisation')}</text>
+  <text x="0" y="16" text-anchor="middle" font-size="9.5" fill="var(--dim)">${st===4?t('i soldi si muovono','money moves'):t('meno di un secondo','under a second')}</text></g>`;
+ sv.innerHTML=h;
+ $('#ft').innerHTML=`<span style="color:${NODES[f.b]?.[2]||'var(--ink)'};font-size:.8rem;font-weight:600">${st+1}</span> &nbsp;${f.t[li]}
+  ${tip(st===4?G.sett:G.auth)}`;
+ $('#fd').textContent=f.d[li];
+ $('#fs').innerHTML=FLOW.map((_,i)=>`<span style="display:inline-block;width:${i===st?22:7}px;height:7px;border-radius:4px;margin:0 3px;background:${i===st?'var(--acc)':'var(--line)'};transition:.3s"></span>`).join('')}
+function fbar(){const b=$('#fbar');if(!b)return;const g=i=>+$('#'+i).value||0;
+ const m=g('f_mdr'),ic=g('f_ic'),sc=g('f_sc'),acq=Math.max(0,m-ic-sc),net=100-m;
+ b.innerHTML=[[net,'#0E8174'],[ic,'#2C6EF2'],[sc,'#D08A0E'],[acq,'#C41E6B']]
+  .map(p=>`<div style="flex:0 0 ${p[0]}%;background:${p[1]}">${p[0]>4?p[0].toFixed(2):''}</div>`).join('')}
+
+/* ================= impostazioni ================= */
+function settings(){
+ $('#p-settings').innerHTML=`<h1>${t('Impostazioni','Settings')}</h1>
+ <div class="g g2"><div class="card"><h3>Supabase</h3>
+  <p class="sm dim">${t('Tabella lppay_state con id text primary key e data jsonb. Serve solo per condividere tra dispositivi: le modifiche restano comunque salvate in questo browser.','Only needed to share across devices: changes are saved in this browser anyway.')}</p>
+  <label class="sm dim">Project URL<input id="sb_url" value="${esc(SB.url)}" placeholder="https://xxx.supabase.co"></label>
+  <label class="sm dim" style="display:block;margin-top:8px">Anon key<input id="sb_key" type="password" value="${esc(SB.key)}"></label>
+  <div class="row" style="margin-top:10px"><button class="btn p xs" id="sbs">${t('Collega','Connect')}</button>
+   <button class="btn xs" id="sbp">${t('Scarica','Pull')}</button><button class="btn xs" id="sbu">${t('Carica','Push')}</button>
+   <span class="badge ${sbOn()?'ok':''}">${sbOn()?'supabase':'locale'}</span></div></div>
+ <div class="card"><h3>${t('Accesso e brand','Access and brand')}</h3>
+  <label class="sm dim">${t('Nuova password','New password')}<input id="npw" placeholder="LP2026"></label>
+  <button class="btn xs" id="spw" style="margin-top:8px">${t('Aggiorna','Update')}</button>
+  <p class="sm dim">${t('Protezione client-side: tiene fuori i curiosi, non un attaccante. Per condizioni sotto NDA serve Supabase Auth con RLS.','Client-side only.')}</p>
+  <hr style="border:0;border-top:1px solid var(--line);margin:12px 0">
+  <div class="row"><label class="btn xs" style="cursor:pointer">Logo<input type="file" id="lf" accept="image/*" class="hidden"></label>
+   <button class="btn xs" id="exp">${t('Esporta','Export')}</button>
+   <label class="btn xs" style="cursor:pointer">${t('Importa','Import')}<input type="file" id="imf" accept="application/json" class="hidden"></label>
+   <button class="btn xs dg" data-act="reset:x">${t('Reset dati iniziali','Reset seed')}</button></div></div></div>
+ <div class="card" style="margin-top:14px"><h3>${t('Fonti e date di rilevazione','Sources and capture dates')}</h3>
+  ${SRC.map(s=>`<div class="kv"><span><b style="font-weight:600">${esc(s[0])}</b><br><span class="sm dim">${esc(s[2])}</span></span><b>${s[1]}</b></div>`).join('')}</div>`;
+ $('#sbs').onclick=()=>{SB.url=$('#sb_url').value.trim();SB.key=$('#sb_key').value.trim();
+  localStorage.setItem('sb_url',SB.url);localStorage.setItem('sb_key',SB.key);settings();toast(sbOn()?'Collegato':'Campi vuoti')};
+ $('#sbp').onclick=pull;$('#sbu').onclick=()=>{push();toast(t('Inviato','Pushed'))};
+ $('#spw').onclick=()=>{const v=$('#npw').value.trim();if(v){S.pw=v;save()}};
+ $('#lf').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{S.logo=r.result;save(1);logo()};r.readAsDataURL(f)};
+ $('#exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}));
+  a.download='LpPay_'+new Date().toISOString().slice(0,10)+'.json';a.click()};
+ $('#imf').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{S=JSON.parse(r.result);load();save(1);all();toast(t('Importato','Imported'))}catch(x){toast('JSON non valido')}};r.readAsText(f)}}
+DEL.reset=()=>{S=JSON.parse(JSON.stringify(SEED));save(1);all();toast(t('Dati ripristinati','Reset done'))};
+
+/* ================= boot ================= */
+const MARK=`<svg width="24" height="24" viewBox="0 0 40 40"><path d="M20 4c4 6 4 12 0 18-4-6-4-12 0-18z" fill="#C41E6B"/><path d="M6 20c6-3 12-1 14 6-7 2-12-1-14-6z" fill="#0E8174"/><path d="M34 20c-6-3-12-1-14 6 7 2 12-1 14-6z" fill="#0E8174" opacity=".7"/></svg>`;
+function logo(){$('#logo').innerHTML=S.logo?`<img src="${S.logo}">`:MARK;
+ $('#gl').innerHTML=S.logo?`<img src="${S.logo}" style="height:46px">`:MARK.replace(/"24"/g,'"46"')}
+function all(){logo();nav();ovw();compare();revenue();devices();roadmap();decisions();comments();flowPanel();settings();cbadges()}
+$('#fabset').onclick=()=>go('settings');
+$('#themebtn').onclick=()=>{const dark=document.documentElement.getAttribute('data-theme')==='dark',n=dark?'light':'dark';
+ document.documentElement.setAttribute('data-theme',n);localStorage.setItem('lp_theme',n);
+ $('#thi').innerHTML=n==='dark'?'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>':'<circle cx="12" cy="12" r="4.4"/><path d="M12 2.2v2.2M12 19.6v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.2 12h2.2M19.6 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/>'};
+$('#lang').onclick=()=>{L=L==='it'?'en':'it';localStorage.setItem('lp_lang',L);document.documentElement.lang=L;
+ $('#lang').textContent=L==='it'?'EN':'IT';$('#cmtlabel').textContent=t('Commenta','Comment');all()};
+function unlock(){if($('#pw').value===(S.pw||'LP2026')){$('#gate').style.display='none';sessionStorage.setItem('lp_ok','1')}else $('#pwe').classList.remove('hidden')}
+$('#pwgo').onclick=unlock;$('#pw').addEventListener('keydown',e=>e.key==='Enter'&&unlock());
+const TB=$('#tipbox');
+function showTip(el){const x=el.dataset.tip;if(!x)return;TB.textContent=x;TB.classList.add('on');
+ const r=el.getBoundingClientRect(),b=TB.getBoundingClientRect();
+ let left=r.left+r.width/2-b.width/2;
+ left=Math.max(10,Math.min(left,innerWidth-b.width-10));
+ let top=r.top-b.height-9;
+ if(top<8)top=r.bottom+9;
+ TB.style.left=left+'px';TB.style.top=top+'px'}
+const hideTip=()=>TB.classList.remove('on');
+document.addEventListener('mouseover',e=>{const i=e.target.closest('.i');if(i)showTip(i)});
+document.addEventListener('mouseout',e=>{if(e.target.closest('.i'))hideTip()});
+document.addEventListener('focusin',e=>{const i=e.target.closest('.i');if(i)showTip(i)});
+document.addEventListener('focusout',hideTip);
+document.addEventListener('scroll',hideTip,true);
+document.addEventListener('click',e=>{const i=e.target.closest('.i');if(i){e.stopPropagation();showTip(i);setTimeout(hideTip,4500)}},true);
+load();
+const th=localStorage.getItem('lp_theme')||'light';document.documentElement.setAttribute('data-theme',th);
+if(th==='dark')$('#thi').innerHTML='<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
+$('#lang').textContent=L==='it'?'EN':'IT';
+all();if(sessionStorage.getItem('lp_ok'))$('#gate').style.display='none';if(sbOn())pull();
+</script></body></html>
