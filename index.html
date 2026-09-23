@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lp.Pay</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%23FAFAFC'/%3E%3Cpath d='M20 6c3.6 5.4 3.6 10.8 0 16.2-3.6-5.4-3.6-10.8 0-16.2z' fill='%23C41E6B'/%3E%3Cpath d='M7 21c5.4-2.7 10.8-.9 12.6 5.4-6.3 1.8-10.8-.9-12.6-5.4z' fill='%230E8174'/%3E%3Cpath d='M33 21c-5.4-2.7-10.8-.9-12.6 5.4 6.3 1.8 10.8-.9 12.6-5.4z' fill='%230E8174' opacity='.72'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23FAFAFC'/%3E%3Cpath d='M20 6c3.6 5.4 3.6 10.8 0 16.2-3.6-5.4-3.6-10.8 0-16.2z' fill='%23C41E6B'/%3E%3Cpath d='M7 21c5.4-2.7 10.8-.9 12.6 5.4-6.3 1.8-10.8-.9-12.6-5.4z' fill='%230E8174'/%3E%3Cpath d='M33 21c-5.4-2.7-10.8-.9-12.6 5.4 6.3 1.8 10.8-.9 12.6-5.4z' fill='%230E8174' opacity='.72'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#FAFAFC">
+<meta name="description" content="Lp.Pay — comparatore operatori di pagamento, Lotus Pecas">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -105,6 +109,13 @@ dialog::backdrop{background:rgba(0,0,0,.4)}
  border:1px solid var(--line);color:var(--dim);font-size:9px;font-weight:600;font-style:normal;cursor:help;
  margin:0 0 0 5px;vertical-align:1px;text-align:center;background:var(--sur);position:relative;top:-1px}
 .i:hover{border-color:var(--blue);color:var(--blue);background:var(--sur)}
+label{display:block}
+label>.i{float:right;margin:2px 0 0 6px;top:0}
+.kv .i,h3 .i{float:none}
+.tx{display:inline-block;margin-left:6px;font-size:9px;font-weight:700;letter-spacing:.04em;
+ padding:1px 5px;border-radius:5px;border:1px dashed var(--amber);color:var(--amber);cursor:pointer;
+ vertical-align:1px;background:color-mix(in srgb,var(--amber) 8%,transparent);user-select:none}
+.tx:hover{background:var(--amber);color:#fff;border-style:solid}
 #tipbox{position:fixed;z-index:200;background:var(--ink);color:var(--bg);padding:10px 13px;border-radius:10px;
  font-size:12.5px;line-height:1.45;max-width:290px;letter-spacing:-.005em;pointer-events:none;
  opacity:0;transition:opacity .13s;box-shadow:0 10px 30px rgba(0,0,0,.25);font-weight:400}
@@ -164,6 +175,9 @@ body.cmt [data-anchor]:hover{outline:2px dashed var(--acc);outline-offset:2px}
  <div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn xs" id="ccancel">Annulla</button><button class="btn p xs" id="csave">Salva</button></div></dialog>
 <div class="toast" id="toast"></div>
 <div id="tipbox"></div>
+<dialog id="tdlg"><h3 id="tdt"></h3><p class="sm dim" id="tds" style="margin:6px 0 10px"></p>
+ <textarea id="tdx" rows="5"></textarea>
+ <div class="row" style="margin-top:12px;justify-content:flex-end"><button class="btn xs" id="tdc">Annulla</button><button class="btn p xs" id="tdo">Salva</button></div></dialog>
 
 <script>
 const uid=()=>Math.random().toString(36).slice(2,9);
@@ -173,6 +187,37 @@ let L=localStorage.getItem('lp_lang')||'it';
 const t=(i,e)=>L==='it'?i:e;
 const $=s=>document.querySelector(s);
 
+let S;const LS='lppay_v9';
+const tip=(x)=>`<i class="i" tabindex="0" data-tip="${esc(x)}">i</i>`;
+const GEN={
+ mdr:'Merchant Discount Rate: the percentage the merchant pays on takings. On €100 at 1.49% the merchant receives 98.51.',
+ inter:'Interchange: the slice the acquirer passes to the bank that issued the card. Capped in the EU: 0.20% consumer debit, 0.30% consumer credit.',
+ scheme:'Scheme fee: what the card network (Visa, Mastercard, PagoBANCOMAT) keeps to move the transaction.',
+ margin:'Acquirer margin: what is left to the acquirer after interchange and scheme fee. Our share comes out of this.',
+ share:'The percentage of that margin the acquirer passes to us. With Dojo it is 20% of Monthly Net Profit.',
+ bundle:'Cluster model: each client pays a fixed annual fee set by its transaction band. Busier merchants sit in a higher band.',
+ flat:'Flat bonus: they pay us once, when the POS is activated. After that the client generates nothing.',
+ pctm:'Margin share: we earn a percentage of what the acquirer earns on volume. It grows with volume, not with installations.',
+ custom:'Composable model: fixed annual per client, amount per transaction and margin share add up. Zero out what you do not use.',
+ inst:'What they pay us for each POS we install. One-off: it does not come back next year.',
+ lic:'What Lotus Pecas invoices the client for the software every year. Unrelated to the acquirer.',
+ maint:'Annual support fee on our own software.',
+ clients:'How many merchants have one of our POS live and working during the year.',
+ tx:'How many card payments an average client takes in a year. A busy bar is around 8,000, a niche shop under 1,000.',
+ ticket:'What a single payment is worth on average. A bar around €8, a restaurant €45.',
+ newc:'How many new installations we do in the year. It only drives the one-off bonuses.',
+ disc:'The discount we grant a large client to keep them. It reduces what we collect on that client.',
+ big:'What share of the client base counts as large and therefore gets that discount.',
+ rec:'Recurring: it comes every year while the client stays. This is the number that matters after year one.',
+ one:'One-off: tied to this year\'s new installations. If we stop installing, it disappears.',
+ liq:'Licences and maintenance on our own software: our revenue, independent of which acquirer we pick.',
+ vol:'Volume: the total in euro passing through our POS estate in a year.',
+ una:'What the client pays once at activation (installation or purchase of the device).',
+ can:'What the client pays every month to keep the terminal.',
+ revd:'What we earn for each installation of that terminal.',
+ sett:'Settlement: when the money actually lands on the merchant account, usually the next day. Different from authorisation, which is instant.',
+ auth:'Authorisation: the bank\'s yes or no, in a few hundred milliseconds. No money has moved yet.'};
+const G=new Proxy({},{get:(_,k)=>(L==='en'?GEN[k]:GIT[k])||GIT[k]||''});
 /* ================= SEED ================= */
 const SEED={pw:'LP2026',logo:null,
 layout:{overview:['stato','roadmap','rischi'],revenue:['par','chart','models'],devices:['filter','chart','list','multi'],flow:['anim','split'],decisions:['list']},
@@ -180,7 +225,7 @@ overview:[
  {id:uid(),k:'Nexi',v:'Due contratti firmati. Collaborazione commerciale 21/11/2025: 120 € per SmartPOS, 90 € per Mini, 20 € per SoftPOS, più management fee annuale a cluster ma solo per 3 anni per cliente. App Approval Policy 10/09/2026: l\'app Lp.Pay è sullo store, gratuita, senza revenue share.',s:'ok'},
  {id:uid(),k:'Dojo / Paymentsense',v:'Referral integrato firmato 25/05/2026: 20% del Monthly Net Profit, 4% via rivenditori. Nessuna % di listino italiana pubblica.',s:'ok'},
  {id:uid(),k:'Fabrick / Banca Sella',v:'80 € per POS attivato, zero revenue sul transato. Set contrattuale ISV in finalizzazione secondo scambio email.',s:'warn'},
- {id:uid(),k:'Adyen',v:'Nessun contatto avviato. Programma partner aperto ai POS integrator, Terminal API documentata, ma nessuna condizione economica pubblica e un posizionamento dichiaratamente enterprise: prima domanda da fare è se rientriamo nei loro criteri.',s:''},
+ {id:uid(),k:'Adyen',v:'Nessun contatto avviato. Interchange++ con 0,11 € per transazione e markup dallo 0,60%, ma con una probabile fattura minima mensile intorno ai 1.000 € e un posizionamento enterprise. Dati da fonti di mercato, tutti da confermare con loro.',s:''},
  {id:uid(),k:'La domanda da risolvere',v:'Premio secco (Sella) paga subito e smette. Quota sul margine (Dojo) paga poco all\'inizio e cresce col parco. Nexi sta in mezzo. Dipende da quanti POS installiamo nei primi 18 mesi.',s:''},
  {id:uid(),k:'Cosa manca per decidere',v:'MDR medio italiano di Dojo, conferma scritta sul white label Nexi, soglia di passaggio da bundle a % fee, contratto Fabrick.',s:'stop'}],
 risks:[
@@ -193,15 +238,16 @@ risks:[
  {id:uid(),t:'Con Sella non vediamo il nostro parco',x:'Nessun profilo super user: il transato dei nostri clienti è accessibile solo via API. Problema di controllo commerciale, non tecnico.',l:'medio'},
  {id:uid(),t:'Il modello Sella non ha coda',x:'80 € per POS e nulla di ricorrente: a installazioni ferme il ricavo va a zero, mentre Nexi e Dojo continuano.',l:'medio'},
  {id:uid(),t:'White label Nexi non confermato',x:'La pubblicazione dell\'app sullo store è certa, il branding completo dell\'esperienza POS no. Da mettere per iscritto prima di comunicarlo alla rete.',l:'medio'}],
-compare:{cols:[{id:'nexi',name:'Nexi',color:'#C41E6B'},{id:'dojo',name:'Dojo / Paymentsense',color:'#0E8174'},{id:'sella',name:'Fabrick / Banca Sella',color:'#2C6EF2'},{id:'adyen',name:'Adyen',color:'#6D4AE0'}],
- rows:[{id:'s1',sect:1,label:'Profilo'},{id:'r1',label:'Tipo'},{id:'r2',label:'Paese di licenza'},{id:'r3',label:'Vigilanza'},{id:'r4',label:'Presenza in Italia'},
-  {id:'s2',sect:1,label:'Rapporto con Lp.Pay'},{id:'r5',label:'Accordo'},{id:'r6',label:'Come guadagna Lp.Pay'},{id:'r7',label:'Evoluzione prevista'},{id:'r8',label:'Sconti per clienti grandi'},{id:'r9',label:'Durata e uscita'},{id:'r10',label:'Condizioni ISV / store'},
-  {id:'s3',sect:1,label:'Dodici campi operativi'},{id:'f1',label:'Tipologie POS'},{id:'f2',label:'SoftPOS'},{id:'f3',label:'Terminali Android'},{id:'f4',label:'Commissioni'},
-  {id:'f5',label:'Costi mensili'},{id:'f6',label:'Noleggio'},{id:'f7',label:'Programma partner'},{id:'f8',label:'White label'},{id:'f9',label:'API e integrazione'},
-  {id:'f10',label:'Condizioni contrattuali'},{id:'f11',label:'Tempi di accredito'},{id:'f12',label:'SLA e assistenza'},
-  {id:'s4',sect:1,label:'Sette voti'},{id:'v1',label:'Solidità tecnica',sc:1},{id:'v2',label:'Commissioni competitive',sc:1},{id:'v3',label:'Rapidità di attivazione',sc:1},
-  {id:'v4',label:'Qualità delle API',sc:1},{id:'v5',label:'Collaborazione a lungo termine',sc:1},{id:'v6',label:'Scalabilità EU',sc:1},{id:'v7',label:'Scalabilità mondiale',sc:1},
-  {id:'s5',sect:1,label:'Sei offerte'},{id:'g1',label:'POS tradizionali'},{id:'g2',label:'POS a noleggio'},{id:'g3',label:'SoftPOS'},{id:'g4',label:'Pagamenti online'},{id:'g5',label:'Payment link'},{id:'g6',label:'QR code'}],
+compare:{cols:[{id:'nexi',name:'Nexi',nameEn:'Nexi',color:'#C41E6B'},{id:'dojo',name:'Dojo / Paymentsense',nameEn:'Dojo / Paymentsense',color:'#0E8174'},{id:'sella',name:'Fabrick / Banca Sella',nameEn:'Fabrick / Banca Sella',color:'#2C6EF2'},{id:'adyen',name:'Adyen',nameEn:'Adyen',color:'#6D4AE0'}],
+ rows:[{id:'s1',sect:1,label:'Profilo',labelEn:'Profile'},{id:'r1',label:'Tipo',labelEn:'Type'},{id:'r2',label:'Paese di licenza',labelEn:'Licence country'},{id:'r3',label:'Vigilanza',labelEn:'Supervision'},{id:'r4',label:'Presenza in Italia',labelEn:'Presence in Italy'},
+  {id:'s2',sect:1,label:'Rapporto con Lp.Pay',labelEn:'Relationship with Lp.Pay'},{id:'r5',label:'Accordo',labelEn:'Agreement'},{id:'r6',label:'Come guadagna Lp.Pay',labelEn:'How Lp.Pay earns'},{id:'r7',label:'Evoluzione prevista',labelEn:'Expected evolution'},{id:'r8',label:'Sconti per clienti grandi',labelEn:'Discounts for large clients'},{id:'r9',label:'Durata e uscita',labelEn:'Term and exit'},{id:'r10',label:'Condizioni ISV / store',labelEn:'ISV / store terms'},
+  {id:'s3',sect:1,label:'Dodici campi operativi',labelEn:'Twelve operating fields'},{id:'f1',label:'Tipologie POS',labelEn:'POS types'},{id:'f2',label:'SoftPOS',labelEn:'SoftPOS'},{id:'f3',label:'Terminali Android',labelEn:'Android terminals'},{id:'f4',label:'Commissioni',labelEn:'Fees'},
+  {id:'f5',label:'Costi mensili',labelEn:'Monthly costs'},{id:'f6',label:'Noleggio',labelEn:'Rental'},{id:'f7',label:'Programma partner',labelEn:'Partner programme'},{id:'f8',label:'White label',labelEn:'White label'},{id:'f9',label:'API e integrazione',labelEn:'APIs and integration'},
+  {id:'f10',label:'Condizioni contrattuali',labelEn:'Contract terms'},{id:'f11',label:'Tempi di accredito',labelEn:'Settlement times'},{id:'f12',label:'SLA e assistenza',labelEn:'SLA and support'},
+  {id:'s4',sect:1,label:'Sette voti',labelEn:'Seven scores'},{id:'v1',label:'Solidità tecnica',sc:1,labelEn:'Technical strength'},{id:'v2',label:'Commissioni competitive',sc:1,labelEn:'Competitive fees'},{id:'v3',label:'Rapidità di attivazione',sc:1,labelEn:'Speed of activation'},
+  {id:'v4',label:'Qualità delle API',sc:1,labelEn:'API quality'},{id:'v5',label:'Collaborazione a lungo termine',sc:1,labelEn:'Long-term collaboration'},{id:'v6',label:'Scalabilità EU',sc:1,labelEn:'EU scalability'},{id:'v7',label:'Scalabilità mondiale',sc:1,labelEn:'Worldwide scalability'},
+  {id:'s5',sect:1,label:'Sei offerte',labelEn:'Six offerings'},{id:'g1',label:'POS tradizionali',labelEn:'Traditional POS'},{id:'g2',label:'POS a noleggio',labelEn:'POS rental'},{id:'g3',label:'SoftPOS',labelEn:'SoftPOS'},{id:'g4',label:'Pagamenti online',labelEn:'Online payments'},{id:'g5',label:'Payment link',labelEn:'Payment link'},{id:'g6',label:'QR code',labelEn:'QR code'}],
+ cellsEn:{"nexi|r1": "Acquirer and issuer, Nexi group", "nexi|r2": "Italy", "nexi|r3": "Bank of Italy — e-money register art. 114-quater, no. 32875.7", "nexi|r4": "Leading domestic operator", "nexi|r5": "Two separate contracts. <b>Commercial Collaboration Agreement</b> signed 21/11/2025, 3 years with tacit annual renewal, either party may withdraw on 60 days notice. <b>App Approval Policy</b> signed 10/09/2026, effective 01/01/2027 for 12 months, auto-renewing, 90 days notice.", "nexi|r6": "Commercial Collaboration Agreement signed 21/11/2025, Schedule A. One-off activation: SmartPOS €120, SmartPOS Mini with printer €90, SoftPOS €20, all net of VAT. Annual management fee by transaction cluster per device: XS 20 · S 60 · M 120 · L 240 · XL 450. Paid in one instalment by 15 February of the following year, <b>for a maximum of 3 calendar years from activation</b>. Only POS with at least one transaction in the period count. The OnSet licence at €395/year and maintenance at €95 or €195 are our own price list, not Nexi.", "nexi|r7": "Moving from the bundle to a % fee on volume is a board hypothesis: <b>it appears in none of the signed contracts</b>. Threshold and percentage entirely to be negotiated. Mind the 3 calendar year cap on the management fee: in year four a client activated today is worth nothing. <span class=\"badge warn\">not verified</span>", "nexi|r8": "No discount is contemplated in Schedule A: amounts are fixed per cluster. A reduction would have to be negotiated as a written amendment under art. 11.1. <span class=\"badge warn\">not verified</span>", "nexi|r9": "Commercial collaboration: 3 years from 21/11/2025, tacit annual renewal, either party may withdraw on 60 days notice. App Approval Policy: 12 months from 01/01/2027, 90 days notice. On termination Nexi pays only what has accrued, nothing for later periods.", "nexi|r10": "The Lp.Pay app is free to the merchant, €0/month, no in-app purchase: Nexi takes nothing on our subscriptions and we earn nothing through the store. Fees are collected on the Lotus Pecas Platform, outside the SmartPOS. The app must not compete with Nexi or pre-installed apps, ad banners and monetisation of the second display are forbidden, referral traffic is forbidden. Support in Italian or English during working hours is mandatory: poor SLA is grounds for removal.", "nexi|f1": "SmartPOS dual screen, SmartPOS Mini with printer, Bluetooth Mobile POS, SoftPOS", "nexi|f2": "Yes — €10 one-off, no monthly fee. PagoBANCOMAT on Android only, JCB/UPI excluded", "nexi|f3": "Android SmartPOS with its own app store", "nexi|f4": "LP landing page list, 22/09/2026 — Italia+: Visa/MC consumer 0.89% (+0.65% non-EEA), commercial 1.69%, PagoBANCOMAT 0.69%, JCB/UPI 2.49%, Amex 0% up to €3,000. Welcome Special flat 1.49%. CNP +0.95%. Under €30: −0.05%.", "nexi|f5": "SmartPOS €12/month + €49 installation · Mini €10/month + €49 · SoftPOS and Mobile POS no monthly fee · Protection Plus PCI €2.50 + €7.50 one-off", "nexi|f6": "Monthly fee bundled with a Nexi acquiring contract", "nexi|f7": "Reseller programme + ISV publication on the SmartPOS store", "nexi|f8": "<b>Answer found in the documents: no.</b> App Approval Policy §10: Developers MUST refer to the device as \"Nexi SmartPOS\". The Lp.Pay app carries our brand on the store, but the terminal stays Nexi. No white label of the device.", "nexi|f9": "Android SmartPOS SDK + catalogue API + content provider. Every apk goes through the Developer Portal and Nexi review, updates included. Downloading extra code after certification is forbidden, so is root access and any licence screen at launch. Demos and betas cannot be distributed on the store. Test devices on loan signed 03/12/2025, 11 months.", "nexi|f10": "The acquiring contract is signed directly between Nexi and the merchant: <b>we may not promote or place payment services</b> (art. 5.2, reserved activity under Legislative Decree 385/1993). Our only instrument is the <b>voucher</b>: if the client does not enter it, Nexi owes us nothing (Schedule A §3.1). Reporting is half-yearly. If the merchant withdraws from acquiring, our fees stop immediately. Court of Milan. Loaned material must be returned, penalty up to €500 per terminal.", "nexi|f11": "Next business day, with an Italian bank account", "nexi|f12": "24/7 phone support from Italy, 7 days a week", "nexi|g1": "Yes", "nexi|g2": "Yes, monthly fee", "nexi|g3": "Yes", "nexi|g4": "Yes (XPay, outside the landing page)", "nexi|g5": "Yes, Pay-by-Link included, €0.30 per link transaction", "nexi|g6": "not verified", "dojo|r1": "Acquirer, a Paymentsense brand", "dojo|r2": "Ireland — Paymentsense Ireland Ltd, reg. 542166", "dojo|r3": "Central Bank of Ireland <span class=\"badge warn\">not verified</span>", "dojo|r4": "Italian country manager, over 150 staff claimed", "dojo|r5": "Integrated Referral Partner Agreement, 25/05/2026, 3 years", "dojo|r6": "20% of Monthly Net Profit on merchants we refer, 4% on those referred by our resellers. Never both on the same merchant.", "dojo|r7": "Paymentsense may unilaterally revise the share and the costs on 30 days notice (art. 2.1).", "dojo|r8": "No surcharge tied to choosing Dojo (art. 1.7.7) and merchant pricing is approved by Paymentsense (art. 1.10).", "dojo|r9": "3 years from 25/05/2026. Paymentsense may terminate on 90 days, or immediately if ownership or management changes or if no new merchant is added in a quarter. 12-month payment tail.", "dojo|r10": "Not applicable: no store, direct integration subject to QA.", "dojo|f1": "Dojo Go portable, fixed countertop POS, pocket <span class=\"badge warn\">not verified</span>", "dojo|f2": "not verified", "dojo|f3": "not verified", "dojo|f4": "No Italian rate card published. No percentage from an official source. <span class=\"badge warn\">not verified</span>", "dojo|f5": "not verified", "dojo|f6": "not verified", "dojo|f7": "Referral, reseller and ISV / software house channels", "dojo|f8": "Excluded: sublicensing or modifying Paymentsense software is forbidden (art. 1.8)", "dojo|f9": "APIs for ISV and ECR integration, over 50 Italian till systems integrated. Integration is only valid after QA and written confirmation (art. 1.7.4).", "dojo|f10": "Irish law and courts. No exclusivity (art. 1.5). Termination on 90 days, or immediate if no new merchants in a quarter or if our ownership or management changes (art. 3.3). 12-month payment tail. 18-month non-solicitation. Liability capped at €10,000.", "dojo|f11": "Next day (Dojo source)", "dojo|f12": "Support in Italian 7 days a week, 99.99% uptime claimed", "dojo|g1": "Yes", "dojo|g2": "not verified", "dojo|g3": "not verified", "dojo|g4": "Yes <span class=\"badge warn\">not verified</span>", "dojo|g5": "not verified", "dojo|g6": "not verified", "sella|r1": "Fabrick as technology enabler, acquiring by Banca Sella, Axerve terminals", "sella|r2": "Italy", "sella|r3": "Bank of Italy", "sella|r4": "Yes, Italian banking group", "sella|r5": "ISV partner programme, contract set being finalised (email 2026). <span class=\"badge warn\">not verified</span>", "sella|r6": "€80 per activated POS. No revenue share on volume.", "sella|r7": "Model open to review over the years as the partnership grows, stated by email and not contractual. <span class=\"badge warn\">not verified</span>", "sella|r8": "Standard terms for clients: no stated room to move on merchant pricing.", "sella|r9": "Contract set not yet received. <span class=\"badge warn\">not verified</span>", "sella|r10": "Not applicable. <span class=\"badge warn\">not verified</span>", "sella|f1": "Axerve range, rental or purchase", "sella|f2": "not verified", "sella|f3": "not verified", "sella|f4": "Not disclosed: Banca Sella acquiring on standard terms. <span class=\"badge warn\">not verified</span>", "sella|f5": "not verified", "sella|f6": "Yes, rental or purchase (Axerve)", "sella|f7": "Yes. An ISV with no eCommerce component is admitted, confirmed by email.", "sella|f8": "not verified", "sella|f9": "Standard channel 17 for till connection, or an API key for remote connection to the terminals", "sella|f10": "No minimum volume. KYC, underwriting and ownership of the merchant relationship sit with Banca Sella; technology and logistics support with Fabrick.", "sella|f11": "not verified", "sella|f12": "First line and logistics with Fabrick, acquiring and disputes with Banca Sella. A dashboard for the merchant; no super user profile, volume visible to us only via API.", "sella|g1": "Yes", "sella|g2": "Yes", "sella|g3": "not verified", "sella|g4": "Yes (Axerve, outside our scope)", "sella|g5": "not verified", "sella|g6": "not verified", "adyen|r1": "Acquirer, processor and issuer on a single platform", "adyen|r2": "Netherlands — Adyen N.V., Dutch banking licence", "adyen|r3": "De Nederlandsche Bank. Italian branch in Milan. <span class=\"badge warn\">To confirm</span>", "adyen|r4": "Yes, Milan office. Stated focus on enterprise and platforms", "adyen|r5": "No contact started. Partner programme open to POS integrators and software houses through the partner form.", "adyen|r6": "The partner programme mentions financial rewards, referral and marketing support. No public percentage: market models for ISVs range from a share of the acquirer markup to a plain one-off referral. <span class=\"badge warn\">To confirm</span>", "adyen|r7": "Benefits grow as the partnership consolidates. The acquirer markup falls as monthly volume rises: that is the improvement lever over time, not a change of model. <span class=\"badge warn\">To confirm</span>", "adyen|r8": "Interchange++ shows the merchant every component: a discount can only be negotiated on the Adyen markup, not on interchange and scheme fees which are pass-through costs. <span class=\"badge warn\">To confirm</span>", "adyen|r9": "not verified", "adyen|r10": "A partner marketplace exists but terms are not public. <span class=\"badge warn\">To confirm</span>", "adyen|f1": "Own range of PCI PTS 6 certified terminals for retail, hospitality, events, delivery", "adyen|f2": "Tap to Pay on iPhone and Android live in several European markets. Italian availability <span class=\"badge warn\">To confirm</span>", "adyen|f3": "Own range built on Castles and similar hardware, PCI PTS 6 certified. <span class=\"badge warn\">To confirm</span>", "adyen|f4": "Interchange++ as stated by Adyen: interchange + scheme fee + acquirer markup. <b>€0.11 flat per transaction in Europe</b> plus a markup starting at 0.60% on volume, falling as monthly volume grows (source: help.adyen.com and 2026 market analyses). Average total cost on European consumer cards around 1%. Chargebacks around €25 per dispute. <span class=\"badge warn\">To confirm</span>", "adyen|f5": "No stated monthly or setup fee, but several 2026 market analyses report a <b>minimum monthly invoice around €1,000</b>: below that threshold you pay the difference anyway. For a small estate that is the real hidden cost. <span class=\"badge warn\">To confirm</span>", "adyen|f6": "Terminals for purchase or rental from the Adyen list, prices not public for Italy. <span class=\"badge warn\">To confirm</span>", "adyen|f7": "Partner programme with a dedicated portal, partner manager, quality badge and early access to pilots. Explicit channel for POS and system integrators.", "adyen|f8": "Adyen for Platforms lets us manage sub-merchants under our own platform, the closest thing to white label for our needs. It does mean collecting SAQ A and taking on onboarding responsibility. <span class=\"badge warn\">To confirm</span>", "adyen|f9": "Terminal API in JSON, local or cloud, no middleware. Terminals managed centrally with automatic updates. Full public documentation.", "adyen|f10": "No self-service sign-up: there is a sales process that market analyses put at several weeks. Historically aimed at mid-market and enterprise, with volume thresholds now relaxed but not gone. The real question for us is whether we meet their criteria. <span class=\"badge warn\">To confirm</span>", "adyen|f11": "Payout frequency and currency are configurable, typically daily or weekly depending on risk profile. Italian timings <span class=\"badge warn\">To confirm</span>", "adyen|f12": "Enterprise support with a dedicated partner manager and partner portal. Contractual SLA and Italian-language coverage <span class=\"badge warn\">To confirm</span>", "adyen|g1": "Yes", "adyen|g2": "Terminal rental available, terms not public. <span class=\"badge warn\">To confirm</span>", "adyen|g3": "Tap to Pay in several EU markets. <span class=\"badge warn\">To confirm</span>", "adyen|g4": "Yes", "adyen|g5": "Yes (pay by link) <span class=\"badge warn\">To confirm</span>", "adyen|g6": "QR and local wallets supported by the platform. <span class=\"badge warn\">To confirm</span>"},
  cells:{
  'nexi|r1':'Acquirer e issuer, gruppo Nexi','nexi|r2':'Italia','nexi|r3':'Banca d\'Italia — Albo IMEL art. 114-quater, n. 32875.7','nexi|r4':'Operatore domestico principale',
  'nexi|r5':'Due contratti distinti. <b>Accordo di Collaborazione Commerciale</b> firmato 21/11/2025, 3 anni con rinnovo tacito annuale, recesso di una delle parti con 60 giorni di preavviso. <b>App Approval Policy</b> firmata 10/09/2026, efficace dal 01/01/2027 per 12 mesi, rinnovo automatico, disdetta con 90 giorni.','nexi|r6':'Accordo di Collaborazione Commerciale firmato 21/11/2025, Allegato A. Una tantum attivazione: SmartPOS 120 €, SmartPOS Mini con stampante 90 €, SoftPOS 20 €, tutti netti IVA. Management fee annuale per cluster di transazioni per dispositivo: XS 20 · S 60 · M 120 · L 240 · XL 450 €. Pagata in un\'unica soluzione entro il 15.02 dell\'anno successivo, <b>per un massimo di 3 anni solari dall\'attivazione</b>. Contano solo i POS con almeno una transazione nel periodo. Licenza OnSet 395 €/anno/cliente e manutenzione 95 o 195 € sono nostro listino, non Nexi.',
@@ -247,18 +293,18 @@ compare:{cols:[{id:'nexi',name:'Nexi',color:'#C41E6B'},{id:'dojo',name:'Dojo / P
  'sella|v1':'7','sella|v2':'4','sella|v3':'6','sella|v4':'6','sella|v5':'6','sella|v6':'5','sella|v7':'3',
  'sella|g1':'Sì','sella|g2':'Sì','sella|g3':'non verificato','sella|g4':'Sì (Axerve, fuori perimetro)','sella|g5':'non verificato','sella|g6':'non verificato',
  'adyen|r1':'Acquirer, processor e issuer su piattaforma unica','adyen|r2':'Paesi Bassi — Adyen N.V., licenza bancaria olandese',
- 'adyen|r3':'De Nederlandsche Bank; filiale italiana a Milano '+NV,'adyen|r4':'Sì, ufficio a Milano. Focus dichiarato su enterprise e piattaforme',
- 'adyen|r5':'Nessun contatto avviato. Programma partner aperto a POS integrator e software house tramite modulo partner.','adyen|r6':'Da definire. Il programma parla di premi finanziari, referral e supporto marketing, senza cifre pubbliche. '+NV,
- 'adyen|r7':'Benefici crescenti al consolidarsi della partnership, secondo la pagina del programma. Nessuna soglia pubblicata. '+NV,
- 'adyen|r8':'Modello interchange++ trasparente sul lato merchant; margine negoziabile a volume. '+NV,
- 'adyen|f1':'Gamma propria di terminali certificati PCI PTS 6, per retail, hospitality, eventi, delivery','adyen|f2':'non verificato','adyen|f3':'Terminali Android proprietari '+NV,
- 'adyen|f4':'Nessun listino italiano pubblico. Modello tipico interchange++ con markup negoziato. '+NV,'adyen|f5':'non verificato','adyen|f6':'non verificato',
+ 'adyen|r3':'De Nederlandsche Bank. Filiale italiana a Milano. <span class="badge warn">Da confermare</span>','adyen|r4':'Sì, ufficio a Milano. Focus dichiarato su enterprise e piattaforme',
+ 'adyen|r5':'Nessun contatto avviato. Programma partner aperto a POS integrator e software house tramite modulo partner.','adyen|r6':'Il programma partner cita premi finanziari, referral e supporto marketing. Nessuna percentuale pubblica: nel mercato i modelli ISV vanno da un rev-share sul markup acquirer a un semplice referral una tantum. <span class="badge warn">Da confermare</span>',
+ 'adyen|r7':'Benefici crescenti al consolidarsi della partnership. Il markup acquirer scende al crescere del volume mensile: è questa la leva di miglioramento nel tempo, non un cambio di modello. <span class="badge warn">Da confermare</span>',
+ 'adyen|r8':'Interchange++ rende visibile al merchant ogni componente: lo sconto si negozia solo sul markup Adyen, non su interchange e scheme fee che sono costi passanti. <span class="badge warn">Da confermare</span>',
+ 'adyen|f1':'Gamma propria di terminali certificati PCI PTS 6, per retail, hospitality, eventi, delivery','adyen|f2':'Tap to Pay su iPhone e Android disponibile in diversi mercati europei. Disponibilità italiana <span class="badge warn">Da confermare</span>','adyen|f3':'Gamma propria basata su hardware Castles e affini, certificata PCI PTS 6. <span class="badge warn">Da confermare</span>',
+ 'adyen|f4':'Interchange++ dichiarato dalla stessa Adyen: interchange + scheme fee + markup acquirer. <b>0,11 € fissi per transazione in Europa</b> più markup a partire da 0,60% sul transato, decrescente al crescere del volume mensile (fonte: help.adyen.com e analisi di mercato 2026). Costo medio totale su carte consumer europee intorno all\'1%. Chargeback intorno a 25 € per disputa. <span class="badge warn">Da confermare</span>','adyen|f5':'Nessun canone né costo di setup dichiarato, ma più analisi di mercato 2026 riportano una <b>fattura minima mensile intorno a 1.000 €</b>: sotto quella soglia si paga comunque la differenza. Per un parco piccolo è il vero costo nascosto. <span class="badge warn">Da confermare</span>','adyen|f6':'Terminali in acquisto o noleggio dal listino Adyen, prezzi non pubblici per l\'Italia. <span class="badge warn">Da confermare</span>',
  'adyen|f7':'Programma partner con portale dedicato, partner manager, badge di qualità, accesso anticipato ai pilot. Canale esplicito per POS integrator e system integrator.',
- 'adyen|f8':'non verificato','adyen|f9':'Terminal API in JSON, locale o cloud, senza middleware. Terminali gestiti centralmente con aggiornamenti automatici. Documentazione pubblica completa.',
- 'adyen|f10':'non verificato. Da valutare se una software house italiana di nostra dimensione rientri nei criteri di ingaggio. '+NV,
- 'adyen|f11':'non verificato','adyen|f12':'non verificato',
- 'adyen|v1':'9','adyen|v2':'5','adyen|v3':'4','adyen|v4':'9','adyen|v5':'6','adyen|v6':'9','adyen|v7':'9',
- 'adyen|g1':'Sì','adyen|g2':'non verificato','adyen|g3':'non verificato','adyen|g4':'Sì','adyen|g5':'Sì (pay by link) '+NV,'adyen|g6':'non verificato'}},
+ 'adyen|f8':'Adyen for Platforms consente di gestire sub-merchant sotto la nostra piattaforma, che è la forma di white label più vicina alle nostre esigenze. Comporta però raccolta del SAQ A e responsabilità di onboarding in capo a noi. <span class="badge warn">Da confermare</span>','adyen|f9':'Terminal API in JSON, locale o cloud, senza middleware. Terminali gestiti centralmente con aggiornamenti automatici. Documentazione pubblica completa.',
+ 'adyen|f10':'Nessuna iscrizione self-service: si passa da un processo commerciale che secondo le analisi di mercato richiede settimane. Storicamente orientati a mid-market ed enterprise, con soglie di volume oggi attenuate ma non azzerate. Per noi la domanda vera è se rientriamo nei criteri. <span class="badge warn">Da confermare</span>',
+ 'adyen|f11':'Payout configurabile per frequenza e valuta, tipicamente giornaliero o settimanale secondo il profilo di rischio. Tempi italiani <span class="badge warn">Da confermare</span>','adyen|f12':'Supporto enterprise con partner manager dedicato e portale partner. SLA contrattuali e copertura in italiano <span class="badge warn">Da confermare</span>',
+ 'adyen|v1':'9','adyen|v2':'6','adyen|v3':'4','adyen|v4':'9','adyen|v5':'6','adyen|v6':'9','adyen|v7':'9',
+ 'adyen|g1':'Sì','adyen|g2':'Noleggio terminali disponibile, condizioni non pubbliche. <span class="badge warn">Da confermare</span>','adyen|g3':'Tap to Pay in diversi mercati EU. <span class="badge warn">Da confermare</span>','adyen|g4':'Sì','adyen|g5':'Sì (pay by link) '+NV,'adyen|g6':'non verificato'}},
 devices:[
  {id:uid(),n:'Nexi SmartPOS doppio schermo',a:'nexi',own:'Nexi',os:'Android, store Nexi, SDK + ECR',una:49,can:12,rev:120,note:'Conto visione test firmato 03/12/2025, 11 mesi'},
  {id:uid(),n:'Nexi SmartPOS Mini + stampante',a:'nexi',own:'Nexi',os:'Android, Wi-Fi e 4G',una:49,can:10,rev:90,note:'Stampante integrata, buoni pasto e mance'},
@@ -273,7 +319,7 @@ acq:[{id:'nexi',name:'Nexi',color:'#C41E6B',model:'bundle',share:0,inst:120,lic:
   clusters:[{k:'XS',min:300,max:600,fee:20},{k:'S',min:601,max:1800,fee:60},{k:'M',min:1801,max:3600,fee:120},{k:'L',min:3601,max:8000,fee:240},{k:'XL',min:8001,max:15000,fee:450}]},
  {id:'dojo',name:'Dojo',color:'#0E8174',model:'pct',share:20,inst:0,lic:0,maint:0,mdr:1.49,cost:.55,clusters:[]},
  {id:'sella',name:'Fabrick / Sella',color:'#2C6EF2',model:'flat',share:0,inst:80,lic:0,maint:0,mdr:0,cost:0,clusters:[]},
- {id:'adyen',name:'Adyen',color:'#6D4AE0',model:'custom',mname:'Da negoziare: fisso per cliente + per transazione',share:0,inst:0,lic:0,maint:0,mdr:1.2,cost:.55,recfix:0,pertx:0,clusters:[]}],
+ {id:'adyen',name:'Adyen',color:'#6D4AE0',model:'custom',hyp:1,mname:'Ipotesi: quota sul markup Adyen + fee per transazione',share:15,inst:0,lic:0,maint:0,mdr:1.00,cost:.53,recfix:0,pertx:0.01,clusters:[]}],
 roadmap:{nexi:[{id:uid(),t:'Negoziare l\'estensione della management fee oltre i 3 anni solari per cliente',s:0,w:'Edoardo',d:''},
  {id:uid(),t:'Rendere il voucher automatico o precompilato: oggi se il cliente non lo inserisce perdiamo il corrispettivo',s:0,w:'Edoardo',d:''},
  {id:uid(),t:'Istruire la rete commerciale sul confine dell\'art. 5.2: segnalare sì, vendere no',s:0,w:'Giacomo',d:''},
@@ -308,6 +354,7 @@ const SRC=[['Landing partner Nexi NEXI4LOTUSPECAS','22/09/2026','Canoni, install
  ['Modulo Conto Visione Nexi — SmartPOS doppio schermo','03/12/2025','11 mesi, solo test, penale fino a 500 €/terminale'],
  ['Schema premi e listino LP (screenshot direzione)','22/09/2026','Cluster XS–XL, premi 120 e 90 €, OnSet 395 €, manutenzione 95 e 195 €'],
  ['Dojo — sito e partner programme','22/09/2026','Referral, reseller, ISV. Oltre 50 gestionali integrati. Nessuna percentuale pubblicata.'],
+ ['Adyen — help center, pagina pricing, programma partner + analisi di mercato indipendenti','22/09/2026','Interchange++, 0,11 € per transazione in Europa, markup acquirer da 0,60% decrescente a volume, costo medio consumer EU circa 1%, minimo mensile indicato intorno a 1.000 €, chargeback circa 25 €. Cifre di mercato, non un\'offerta ricevuta'],
  ['Scambio email Fabrick / Banca Sella','2026','ISV senza eCommerce ammesso, canale 17 o API key, 80 €/POS, nessuna revenue sul transato, nessun volume minimo, nessun super user']];
 const PIC={card:'M2 8h20M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z M6 15h4',
  pos:'M7 3h10a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z M9 7h6 M10 17h4',
@@ -322,9 +369,7 @@ const FLOW=[{t:['Il cliente presenta la carta','The customer taps the card'],d:[
 const NODES=[['Cliente','Customer','#C41E6B',PIC.card],['POS','POS','#0E8174',PIC.pos],['Acquirer','Acquirer','#6D4AE0',PIC.acq],['Circuito','Network','#D08A0E',PIC.net],['Banca emittente','Issuer','#2C6EF2',PIC.bank]];
 
 /* ================= state ================= */
-let S;const LS='lppay_v7';
-const tip=(x)=>`<i class="i" tabindex="0" data-tip="${esc(x)}">i</i>`;
-const G={
+const GIT={
  mdr:'Merchant Discount Rate: la percentuale che l\'esercente paga sull\'incasso. Su 100 € con MDR 1,49% l\'esercente ne riceve 98,51.',
  inter:'Interchange: la fetta che l\'acquirer gira alla banca che ha emesso la carta. In UE è a tetto fisso: 0,20% sul debito consumer, 0,30% sul credito consumer.',
  scheme:'Scheme fee: quanto trattiene il circuito (Visa, Mastercard, PagoBANCOMAT) per far viaggiare la transazione.',
@@ -359,6 +404,12 @@ function load(){try{S=JSON.parse(localStorage.getItem(LS))}catch(e){}
  if(!S.layout)S.layout=JSON.parse(JSON.stringify(SEED.layout));
  if(!S.risks)S.risks=JSON.parse(JSON.stringify(SEED.risks));
  S.acq.forEach(a=>{a.recfix=a.recfix||0;a.pertx=a.pertx||0});
+ const ad=S.acq.find(a=>a.id==='adyen');
+ if(ad&&!ad.share&&!ad.inst&&!ad.recfix&&!ad.pertx){Object.assign(ad,{model:'custom',hyp:1,share:15,mdr:1.00,cost:.53,pertx:0.01,
+  mname:'Ipotesi: quota sul markup Adyen + fee per transazione'})}
+ if(!S.compare.cellsEn)S.compare.cellsEn=JSON.parse(JSON.stringify(SEED.compare.cellsEn||{}));
+ S.compare.rows.filter(r=>r.sc).forEach(r=>S.compare.cols.forEach(c=>{const k=c.id+'|'+r.id;
+  if(S.compare.cells[k]&&!S.compare.cellsEn[k])S.compare.cellsEn[k]=S.compare.cells[k]}));
  VIS=new Set(S.compare.cols.map(c=>c.id));}
 function save(q){localStorage.setItem(LS,JSON.stringify(S));if(!q)toast(t('Salvato','Saved'));push()}
 let _t;const qs=()=>{clearTimeout(_t);_t=setTimeout(()=>save(1),500)};
@@ -470,12 +521,23 @@ function ovw(){
 
 /* ================= comparatore ================= */
 let SELR=null,SELC=null,VIS=null;
+const EN=()=>L==='en';
+const CM_=()=>EN()?S.compare.cellsEn:S.compare.cells;
+const cellVal=k=>EN()?(S.compare.cellsEn[k]??''):(S.compare.cells[k]??'');
+const cellMissing=k=>{const it=(S.compare.cells[k]||'').trim(),en=(S.compare.cellsEn[k]||'').trim();
+ return it&&!en?'en':(en&&!it?'it':'')};
+const lbl=o=>EN()?(o.labelEn||o.label):(o.label||o.labelEn||'');
+const cname=c=>EN()?(c.nameEn||c.name):(c.name||c.nameEn||'');
+function missingCount(){let n=0;S.compare.cols.forEach(c=>S.compare.rows.forEach(r=>{if(!r.sect&&cellMissing(c.id+'|'+r.id))n++}));
+ S.compare.rows.forEach(r=>{if(!(r.labelEn||'').trim()&&(r.label||'').trim())n++});
+ S.compare.cols.forEach(c=>{if(!(c.nameEn||'').trim()&&(c.name||'').trim())n++});return n}
 const blockLen=(R,i)=>{let j=i+1;while(j<R.length&&!R[j].sect)j++;return j-i};
 function compare(){
  $('#p-compare').innerHTML=`<h1>${t('Comparatore','Comparator')}</h1>
  <p class="lead">${t('Ogni operatore letto con lo stesso metro. Trascina la maniglia di una macrocategoria per spostare il blocco intero; quella di una riga per muoverla dentro la sua sezione. Clicca il pallino per selezionare ed eliminare.','Drag a section handle to move the whole block, a row handle to move it inside its section. Click the dot to select and delete.')}</p>
  <div class="row" style="margin-bottom:10px" id="vischips"></div>
  <div class="row" style="margin-bottom:12px">
+  <span class="badge warn" id="misscount"></span>
   <button class="btn xs add" id="acol">+ Operatore</button>
   <button class="btn xs add" id="arow">+ Voce</button>
   <button class="btn xs add" id="asect">+ Macrocategoria</button></div>
@@ -487,6 +549,9 @@ function compare(){
  $('#arow').onclick=()=>{S.compare.rows.push({id:uid(),label:t('Nuova voce','New field')});save(1);compare();toast(t('Voce aggiunta','Added'))};
  $('#asect').onclick=()=>{S.compare.rows.push({id:uid(),label:t('Nuova macrocategoria','New section'),sect:1});save(1);compare();toast(t('Macrocategoria aggiunta','Added'))};
  chips();grid();
+ const mc=$('#misscount'),n=missingCount();
+ if(mc)mc.innerHTML=n?`${n} ${t('voci senza traduzione','items without translation')}${tip(t('Le etichette gialle EN o IT segnalano i testi presenti in una sola lingua. Cliccale per aggiungere l\'altra versione: il testo resta legato alla stessa cella e compare quando cambi lingua.','Yellow EN or IT chips mark text present in one language only. Click one to add the other version.'))}`:'';
+ if(mc)mc.classList.toggle('hidden',!n);
 }
 function chips(){
  const box=$('#vischips');if(!box)return;const C=S.compare.cols;
@@ -504,29 +569,35 @@ function grid(){
  let h='<thead><tr><th style="min-width:200px"></th>'+D.cols.map(c=>{const s=SELC===c.id;
   return `<th class="${s?'sel':''}" style="border-top:3px solid ${c.color||'var(--line)'}">
    <span class="hd" draggable="true" data-dcol="${c.id}">⠿</span>
-   <span contenteditable data-col="${c.id}" style="color:${c.color};font-weight:600">${esc(c.name)}</span>
+   <span contenteditable data-col="${c.id}" style="color:${c.color};font-weight:600">${esc(cname(c))}</span>${(EN()?!(c.name||'').trim():!(c.nameEn||'').trim())?`<span class="tx" data-tx="col|${c.id}">${EN()?'IT':'EN'}</span>`:''}
    <span class="pick" data-selc="${c.id}">●</span>
    ${s?`<button class="btn xs dg" data-act="col:compare|${c.id}" style="margin-left:6px">Elimina colonna</button>`:''}</th>`}).join('')+'</tr></thead><tbody>';
  D.rows.forEach((r,i)=>{const s=SELR===r.id;
   if(r.sect){h+=`<tr class="sect${s?' sel':''}" draggable="true" data-rid="${r.id}" data-sect="1">
-   <th colspan="${D.cols.length+1}"><span class="hd">⠿</span> <span contenteditable data-row="${r.id}">${esc(r.label)}</span>
+   <th colspan="${D.cols.length+1}"><span class="hd">⠿</span> <span contenteditable data-row="${r.id}">${esc(lbl(r))}</span>${(EN()?!(r.label||'').trim():!(r.labelEn||'').trim())?`<span class="tx" data-tx="row|${r.id}">${EN()?'IT':'EN'}</span>`:''}
    <span class="pick" data-selr="${r.id}">●</span>
    ${s?`<button class="btn xs dg" data-act="row:compare|${r.id}" style="margin-left:6px">Elimina sezione e righe</button>`:''}</th></tr>`;return}
-  h+=`<tr draggable="true" data-rid="${r.id}" class="${s?'sel':''}"><th><span class="hd">⠿</span> <span contenteditable data-row="${r.id}">${esc(r.label)}</span>
+  h+=`<tr draggable="true" data-rid="${r.id}" class="${s?'sel':''}"><th><span class="hd">⠿</span> <span contenteditable data-row="${r.id}">${esc(lbl(r))}</span>${(EN()?!(r.label||'').trim():!(r.labelEn||'').trim())?`<span class="tx" data-tx="row|${r.id}">${EN()?'IT':'EN'}</span>`:''}
    <span class="pick" data-selr="${r.id}">●</span>${s?`<button class="btn xs dg" data-act="row:compare|${r.id}" style="margin-left:6px">Elimina</button>`:''}</th>`+
-   D.cols.map(c=>`<td contenteditable data-cell="${c.id}|${r.id}" data-anchor="${esc(c.name)} · ${esc(r.label)}" style="color:color-mix(in srgb,${c.color||'var(--ink)'} 42%,var(--ink));box-shadow:inset 3px 0 0 color-mix(in srgb,${c.color||'var(--line)'} 22%,transparent)">${D.cells[c.id+'|'+r.id]||''}</td>`).join('')+'</tr>'});
+   D.cols.map(c=>`<td contenteditable data-cell="${c.id}|${r.id}" data-anchor="${esc(c.name)} · ${esc(r.label)}" style="color:color-mix(in srgb,${c.color||'var(--ink)'} 42%,var(--ink));box-shadow:inset 3px 0 0 color-mix(in srgb,${c.color||'var(--line)'} 22%,transparent)">${cellVal(c.id+'|'+r.id)}</td>${''}`).join('')
+   .replace(/<\/td>/g,'</td>')+'</tr>'});
  el.innerHTML=h+'</tbody>';
+ el.querySelectorAll('[data-cell]').forEach(td=>{const k=td.dataset.cell;const m=cellMissing(k);
+  if(m===(EN()?'en':'it')===false){}
+  if((EN()&&!(S.compare.cellsEn[k]||'').trim()&&(S.compare.cells[k]||'').trim())||(!EN()&&!(S.compare.cellsEn[k]||'').trim()&&(S.compare.cells[k]||'').trim())){
+   const b=document.createElement('span');b.className='tx';b.contentEditable='false';b.dataset.tx='cell|'+k;b.textContent=EN()?'IT':'EN';td.appendChild(b)}});
  el.querySelectorAll('[data-cell]').forEach(td=>{const[cid,rid]=td.dataset.cell.split('|');const r=D.rows.find(x=>x.id===rid);
   if(r?.sc&&!td.querySelector('.bar')){const n=Math.max(0,Math.min(10,parseFloat(td.textContent)||0));
    const b=document.createElement('div');b.className='bar';b.contentEditable='false';
    b.innerHTML=`<i style="width:${n*10}%;background:${D.cols.find(c=>c.id===cid)?.color||'var(--jade)'}"></i>`;td.appendChild(b)}});
  el.querySelectorAll('[data-selr]').forEach(x=>x.onclick=ev=>{ev.stopPropagation();SELR=SELR===x.dataset.selr?null:x.dataset.selr;SELC=null;grid()});
  el.querySelectorAll('[data-selc]').forEach(x=>x.onclick=ev=>{ev.stopPropagation();SELC=SELC===x.dataset.selc?null:x.dataset.selc;SELR=null;grid()});
- el.querySelectorAll('[data-cell]').forEach(x=>x.addEventListener('input',()=>{const cl=x.cloneNode(true);cl.querySelectorAll('.bar').forEach(n=>n.remove());
-  D.cells[x.dataset.cell]=cl.innerHTML.trim();qs()}));
- el.querySelectorAll('[data-row]').forEach(x=>x.addEventListener('input',()=>{const r=D.rows.find(y=>y.id===x.dataset.row);if(r)r.label=x.textContent;qs()}));
+ el.querySelectorAll('[data-cell]').forEach(x=>x.addEventListener('input',()=>{const cl=x.cloneNode(true);
+  cl.querySelectorAll('.bar,.tx').forEach(n=>n.remove());CM_()[x.dataset.cell]=cl.innerHTML.trim();qs()}));
+ el.querySelectorAll('[data-row]').forEach(x=>x.addEventListener('input',()=>{const r=D.rows.find(y=>y.id===x.dataset.row);
+  if(r){if(EN())r.labelEn=x.textContent;else r.label=x.textContent}qs()}));
  el.querySelectorAll('[data-col]').forEach(x=>x.addEventListener('input',()=>{const c=D.cols.find(y=>y.id===x.dataset.col);
-  if(c){c.name=x.textContent;const a=S.acq.find(y=>y.id===c.id);if(a)a.name=c.name}qs()}));
+  if(c){if(EN())c.nameEn=x.textContent;else{c.name=x.textContent;const a=S.acq.find(y=>y.id===c.id);if(a)a.name=c.name}}qs()}));
  gridDrag(el);
 }
 function gridDrag(el){
@@ -593,7 +664,9 @@ let CALC=false;
 let SP={c:50,tx:3000,tk:28,n:50,d:0,b:0};
 function acards(){const box=$('#acards');if(!box)return;
  box.innerHTML=S.acq.map(a=>`<div class="card" draggable="true" data-acard="${a.id}" data-anchor="Modello ${esc(a.name)}" style="border-top:3px solid ${a.color}">
-  <h3 class="acq"><span class="hd">⠿</span><span class="dot" style="background:${a.color}"></span>${esc(a.name)}</h3>
+  <h3 class="acq"><span class="hd">⠿</span><span class="dot" style="background:${a.color}"></span>${esc(a.name)}
+   ${a.hyp?`<span class="badge warn" style="margin-left:6px">${t('ipotesi','assumption')}</span>`:''}</h3>
+  ${a.hyp?`<p class="sm dim" style="margin-top:6px">${t('Nessuna condizione ricevuta da questo operatore. I valori qui sotto sono un\'ipotesi di lavoro costruita su dati di mercato: servono a vedere l\'ordine di grandezza, non a promettere un risultato. Cambiali appena arriva la loro offerta.','No terms received from this operator. The figures below are a working assumption built on market data.')}</p>`:''}
   <label class="sm dim" style="display:block;margin-top:8px">${t('Modello','Model')}
    <select data-am="${a.id}"><option value="bundle" ${a.model==='bundle'?'selected':''}>${t('Bundle a cluster di transazioni','Transaction-cluster bundle')}</option>
    <option value="pct" ${a.model==='pct'?'selected':''}>${t('Quota % sul margine acquirer','% of acquirer margin')}</option>
@@ -655,12 +728,13 @@ function sim(){const sv=$('#chart');if(!sv)return;
    h+=`<rect x="${cx-bw/2}" y="${y}" width="${bw}" height="${hh}" fill="${fill}" stroke="var(--sur)" stroke-width="1.2">
     <animate attributeName="height" from="0" to="${hh}" dur=".45s" fill="freeze"/></rect>`});
   h+=`<text x="${cx}" y="${y-9}" text-anchor="middle" font-size="12" font-weight="600" fill="${r.a.color}">${eur(r.tot)}</text>
-   <text x="${cx}" y="${base+20}" text-anchor="middle" font-size="11" fill="var(--ink)" font-weight="500">${esc(r.a.name).length>15?esc(r.a.name).slice(0,14)+'…':esc(r.a.name)}</text>
+   <text x="${cx}" y="${base+20}" text-anchor="middle" font-size="11" fill="var(--ink)" font-weight="500">${esc(r.a.name).length>15?esc(r.a.name).slice(0,14)+'…':esc(r.a.name)}${r.a.hyp?' *':''}</text>
    <text x="${cx}" y="${base+36}" text-anchor="middle" font-size="10" fill="var(--dim)">${t('ricorrente','recurring')} ${eur(r.rec)}</text>`});
  sv.innerHTML=h;
  $('#clg').innerHTML=`<span><i style="background:var(--dim)"></i>${t('Ricorrente','Recurring')}${tip(G.rec)}</span>
   <span><i style="background:repeating-linear-gradient(45deg,var(--dim) 0 2px,transparent 2px 5px)"></i>${t('Attivazioni','Activations')}${tip(G.one)}</span>
-  <span><i style="background:radial-gradient(circle,var(--dim) 32%,transparent 34%);background-size:5px 5px"></i>${t('Licenze','Licences')}${tip(G.liq)}</span>`;
+  <span><i style="background:radial-gradient(circle,var(--dim) 32%,transparent 34%);background-size:5px 5px"></i>${t('Licenze','Licences')}${tip(G.liq)}</span>
+  ${S.acq.some(a=>a.hyp)?`<span>* ${t('valori di ipotesi, nessuna offerta ricevuta','assumed values, no offer received')}</span>`:''}`;
  const w=[...res].sort((x,y)=>y.tot-x.tot)[0],l=[...res].sort((x,y)=>x.tot-y.tot)[0],rc=[...res].sort((x,y)=>y.rec-x.rec)[0];
  $('#verdict').innerHTML=L==='it'
   ?`Con questi numeri vince <b style="color:${w.a.color}">${esc(w.a.name)}</b> a ${eur(w.tot)}/anno contro ${eur(l.tot)} di ${esc(l.a.name)}. Sul solo ricavo ricorrente, quello che resta quando le installazioni si fermano, il primo è <b style="color:${rc.a.color}">${esc(rc.a.name)}</b> con ${eur(rc.rec)}. È il numero da guardare oltre il primo anno.`
@@ -823,7 +897,7 @@ function cbadges(){TABS.forEach(x=>{if(x[0]==='SEP')return;const n=S.comments.fi
 /* ================= pagamento ================= */
 let st=0,tm=null,FEEON=false;
 function flowPanel(){
- const anim=`<svg id="flowsvg" viewBox="0 0 900 275" width="100%" preserveAspectRatio="xMidYMid meet"></svg>
+ const anim=`<svg id="flowsvg" viewBox="0 0 900 285" width="100%" preserveAspectRatio="xMidYMid meet"></svg>
   <div class="ctr"><button class="btn" id="fprev"><svg class="ico" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
    <button class="btn p" id="fplay"><svg class="ico" viewBox="0 0 24 24" id="fpi"><path d="M7 5l12 7-12 7z" fill="currentColor" stroke="none"/></svg><span id="fplayt">${t('Avvia','Play')}</span></button>
    <button class="btn" id="fnext"><svg class="ico" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
@@ -870,7 +944,7 @@ function drawFlow(){const sv=$('#flowsvg');if(!sv)return;const f=FLOW[st],li=L==
    <circle cx="${x}" cy="${Y}" r="${on?38:32}" fill="${n[2]}" filter="url(#sft)"/>
    <g transform="translate(${x-11},${Y-11})" stroke="#fff" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${n[3]}" transform="scale(.92)"/></g>
    <text x="${x}" y="${Y+68}" text-anchor="middle" font-size="12" fill="var(--ink)" font-weight="${on?600:400}">${n[li]}</text>
-   <text x="${x}" y="${Y+84}" text-anchor="middle" font-size="10" fill="var(--dim)">${['carta o telefono','terminale e cassa','Nexi · Dojo · Sella','Visa · MC · PagoBANCOMAT','banca del cliente'][i]}</text></g>`});
+   <text x="${x}" y="${Y+84}" text-anchor="middle" font-size="10" fill="var(--dim)">${(L==='it'?['carta o telefono','terminale e cassa','Nexi · Dojo · Sella','Visa · MC · PagoBANCOMAT','banca del cliente']:['card or phone','terminal and till','Nexi · Dojo · Sella','Visa · MC · PagoBANCOMAT','customer bank'])[i]}</text></g>`});
  const ax=X(f.a),bx=X(f.b);
  if(st!==4)h+=`<circle r="6.5" fill="var(--acc)"><animate attributeName="cx" values="${ax};${bx}" dur="1.3s" repeatCount="indefinite"/>
   <animate attributeName="cy" values="${Y};${Y}" dur="1.3s" repeatCount="indefinite"/>
@@ -880,13 +954,14 @@ function drawFlow(){const sv=$('#flowsvg');if(!sv)return;const f=FLOW[st],li=L==
    [2,`${t('trattiene','keeps')} ${acq.toFixed(2)}%`,'var(--jade)',t('da qui esce la nostra quota','our share comes from here')],
    [3,`${t('trattiene','keeps')} ${sc}%`,'var(--amber)','scheme fee'],
    [4,`${t('trattiene','keeps')} ${ic}%`,'var(--blue)','interchange']];
-  F.forEach(([i,lab,col,sub])=>{const x=X(i);
-   h+=`<g><path d="M${x} ${Y-44} L${x} ${Y-64}" stroke="${col}" stroke-width="1.5" stroke-dasharray="3 3"/>
-    <rect x="${x-62}" y="${Y-100}" width="124" height="36" rx="10" fill="${col}" opacity=".13"/>
-    <rect x="${x-62}" y="${Y-100}" width="124" height="36" rx="10" fill="none" stroke="${col}" stroke-width="1"/>
-    <text x="${x}" y="${Y-84}" text-anchor="middle" font-size="12" font-weight="700" fill="${col}">${lab}</text>
-    <text x="${x}" y="${Y-71}" text-anchor="middle" font-size="9" fill="var(--dim)">${sub}</text></g>`})}
- h+=`<g transform="translate(450,44)"><rect x="-86" y="-17" width="172" height="28" rx="14" fill="${st===4?'var(--jade)':'var(--acc)'}" opacity=".12"/>
+  h+=`<text x="450" y="22" text-anchor="middle" font-size="11" fill="var(--dim)">${t('chi trattiene cosa su 100 € di incasso','who keeps what out of €100')}</text>`;
+  F.forEach(([i,lab,col,sub],k)=>{const x=X(i),hi=(k%2===0)?0:34,top=Y-104-hi;
+   h+=`<g><path d="M${x} ${Y-44} L${x} ${top+38}" stroke="${col}" stroke-width="1.4" stroke-dasharray="3 3"/>
+    <rect x="${x-64}" y="${top}" width="128" height="38" rx="11" fill="${col}" opacity=".12"/>
+    <rect x="${x-64}" y="${top}" width="128" height="38" rx="11" fill="none" stroke="${col}" stroke-width="1"/>
+    <text x="${x}" y="${top+17}" text-anchor="middle" font-size="12" font-weight="700" fill="${col}">${lab}</text>
+    <text x="${x}" y="${top+30}" text-anchor="middle" font-size="9" fill="var(--dim)">${sub}</text></g>`})}
+ if(!FEEON)h+=`<g transform="translate(450,44)"><rect x="-86" y="-17" width="172" height="28" rx="14" fill="${st===4?'var(--jade)':'var(--acc)'}" opacity=".12"/>
   <text x="0" y="2" text-anchor="middle" font-size="12" font-weight="600" fill="${st===4?'var(--jade)':'var(--acc)'}">${st===4?'settlement':t('autorizzazione','authorisation')}</text>
   <text x="0" y="16" text-anchor="middle" font-size="9.5" fill="var(--dim)">${st===4?t('i soldi si muovono','money moves'):t('meno di un secondo','under a second')}</text></g>`;
  sv.innerHTML=h;
@@ -944,6 +1019,21 @@ $('#lang').onclick=()=>{L=L==='it'?'en':'it';localStorage.setItem('lp_lang',L);d
  $('#lang').textContent=L==='it'?'EN':'IT';$('#cmtlabel').textContent=t('Commenta','Comment');all()};
 function unlock(){if($('#pw').value===(S.pw||'LP2026')){$('#gate').style.display='none';sessionStorage.setItem('lp_ok','1')}else $('#pwe').classList.remove('hidden')}
 $('#pwgo').onclick=unlock;$('#pw').addEventListener('keydown',e=>e.key==='Enter'&&unlock());
+let TDT=null;
+document.addEventListener('click',e=>{const b=e.target.closest('.tx');if(!b)return;
+ e.preventDefault();e.stopPropagation();
+ const[kind,...rest]=b.dataset.tx.split('|'),key=rest.join('|');
+ const other=EN()?'it':'en';
+ let src='',cur='';
+ if(kind==='cell'){src=(EN()?S.compare.cells[key]:S.compare.cells[key])||'';cur=EN()?S.compare.cells[key]:S.compare.cellsEn[key]||''}
+ if(kind==='row'){const r=S.compare.rows.find(x=>x.id===key);src=EN()?r.labelEn:r.label;cur=EN()?r.label:r.labelEn||''}
+ if(kind==='col'){const c=S.compare.cols.find(x=>x.id===key);src=EN()?c.nameEn:c.name;cur=EN()?c.name:c.nameEn||''}
+ TDT={kind,key,target:other};
+ $('#tdt').textContent=other==='en'?'Testo in inglese':'Testo in italiano';
+ $('#tds').innerHTML=`<b>${t('Versione attuale','Current version')} (${EN()?'EN':'IT'}):</b><br>${esc(String(src).replace(/<[^>]+>/g,'')).slice(0,300)}`;
+ $('#tdx').value=String(cur).replace(/<[^>]+>/g,'');
+ $('#tdlg').showModal();$('#tdx').focus()},true);
+document.addEventListener('DOMContentLoaded',()=>{});
 const TB=$('#tipbox');
 function showTip(el){const x=el.dataset.tip;if(!x)return;TB.textContent=x;TB.classList.add('on');
  const r=el.getBoundingClientRect(),b=TB.getBoundingClientRect();
@@ -959,6 +1049,12 @@ document.addEventListener('focusin',e=>{const i=e.target.closest('.i');if(i)show
 document.addEventListener('focusout',hideTip);
 document.addEventListener('scroll',hideTip,true);
 document.addEventListener('click',e=>{const i=e.target.closest('.i');if(i){e.stopPropagation();showTip(i);setTimeout(hideTip,4500)}},true);
+$('#tdc').onclick=()=>$('#tdlg').close();
+$('#tdo').onclick=()=>{if(!TDT)return;const v=$('#tdx').value.trim();const{kind,key,target}=TDT;
+ if(kind==='cell'){if(target==='en')S.compare.cellsEn[key]=v;else S.compare.cells[key]=v}
+ if(kind==='row'){const r=S.compare.rows.find(x=>x.id===key);if(target==='en')r.labelEn=v;else r.label=v}
+ if(kind==='col'){const c=S.compare.cols.find(x=>x.id===key);if(target==='en')c.nameEn=v;else{c.name=v;const a=S.acq.find(y=>y.id===key);if(a)a.name=v}}
+ $('#tdlg').close();save(1);compare();toast(t('Traduzione salvata','Translation saved'))};
 load();
 const th=localStorage.getItem('lp_theme')||'light';document.documentElement.setAttribute('data-theme',th);
 if(th==='dark')$('#thi').innerHTML='<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>';
